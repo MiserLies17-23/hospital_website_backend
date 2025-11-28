@@ -41,7 +41,7 @@ public class UserController {
         return userService.dashboard(session);
     }
 
-    /*@PostMapping("/avatar")
+    @PostMapping("/avatar")
     public ResponseEntity<?> uploadAvatar(HttpSession session, @RequestParam("file") MultipartFile file) {
         return userService.uploadAvatar(session, file);
     }
@@ -49,5 +49,5 @@ public class UserController {
     @DeleteMapping("/avatar")
     public ResponseEntity<?> deleteAvatar(HttpSession session) {
         return userService.deleteAvatar(session);
-    }**/
+    }
 }
