@@ -104,7 +104,10 @@ public class UserService {
             String avatarUrl = UserMapper.avatarProcessing(file, username);
             user.setAvatar(avatarUrl);
             userRepository.save(user);
-            session.setAttribute("Avatar upload", file);
+
+            UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
+            session.setAttribute("user", updatedUser);
+
             return ResponseEntity.ok(avatarUrl);
         }
         return ResponseEntity.ofNullable("Ошибка при загрузке аватара");
@@ -123,7 +126,7 @@ public class UserService {
             UserMapper.deleteAvatar(user.getAvatar());
             user.setAvatar(DEFAULT_USER_IMAGE_URL);
             userRepository.save(user);
-            session.setAttribute("Avatar upload", null);
+
             return ResponseEntity.ok("Аватар удалён");
         }
         return ResponseEntity.ofNullable("Аватар не найден");

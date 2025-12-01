@@ -93,6 +93,7 @@ public class UserMapper {
                 Path filePath = Paths.get(USER_IMAGE_PATH, fileName);
                 if (Files.exists(filePath)) {
                     Files.delete(filePath);
+                    //avatarProcessing(null,)
                 }
             }
         } catch (IOException e) {
