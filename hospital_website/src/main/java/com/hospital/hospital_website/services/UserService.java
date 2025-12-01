@@ -16,8 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.hospital.hospital_website.mapper.UserMapper.DEFAULT_USER_IMAGE_URL;
-
 @Service
 @AllArgsConstructor
 public class UserService {
@@ -88,7 +86,17 @@ public class UserService {
         if (userResponseDTO == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(userResponseDTO);
+        Optional<User> userOptional = userRepository.findByUsername(userResponseDTO.getUsername());
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
+
+            // Обновляем сессию
+            session.setAttribute("user", updatedUser);
+
+            return ResponseEntity.ok(updatedUser);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     public ResponseEntity<?> uploadAvatar(HttpSession session, MultipartFile file) {
@@ -121,11 +129,15 @@ public class UserService {
 
         String username = userDTO.getUsername();
         Optional<User> userOptional = userRepository.findByUsername(username);
-        if (session.getAttribute("Avatar upload") != null) {
+        if (userOptional.isPresent()) {
             User user = userOptional.get();
-            UserMapper.deleteAvatar(user.getAvatar());
-            user.setAvatar(DEFAULT_USER_IMAGE_URL);
-            userRepository.save(user);
+            UserMapper.deleteAvatar(user.getAvatar(), user.getUsername()); // удаляем старый аватар
+            String avatarUrl = UserMapper.avatarProcessing(null, username); // загружаем дефолтный
+            user.setAvatar(avatarUrl); // сохраняем дефолтный аватар для пользователя
+            userRepository.save(user); // сохраняем изменения пользователя в репозиторий
+
+            UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
+            session.setAttribute("user", updatedUser); // Обновляем сессию
 
             return ResponseEntity.ok("Аватар удалён");
         }

@@ -18,7 +18,7 @@ public class UserMapper {
 
     private static final String USER_IMAGE_URL = "http://localhost:8080/images/userImages/";
 
-    public static final String DEFAULT_USER_IMAGE_URL = "http://localhost:8080/images/userImages/defaultUserImage.jpg";
+    private static final String DEFAULT_USER_IMAGE_URL = "http://localhost:8080/images/userImages/defaultUserImage.jpg";
 
     public static User userCrateDtoToUser(UserCreateDTO userCreateDTO) {
         if (userCreateDTO == null) {
@@ -82,7 +82,7 @@ public class UserMapper {
 
     }
 
-    public static void deleteAvatar(String avatarUrl) {
+    public static void deleteAvatar(String avatarUrl, String username) {
         if (avatarUrl == null || avatarUrl.equals(DEFAULT_USER_IMAGE_URL)) {
             return;
         }
@@ -93,7 +93,6 @@ public class UserMapper {
                 Path filePath = Paths.get(USER_IMAGE_PATH, fileName);
                 if (Files.exists(filePath)) {
                     Files.delete(filePath);
-                    //avatarProcessing(null,)
                 }
             }
         } catch (IOException e) {
