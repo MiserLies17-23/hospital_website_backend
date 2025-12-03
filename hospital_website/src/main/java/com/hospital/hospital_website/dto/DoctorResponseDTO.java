@@ -13,9 +13,11 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class DoctorResponseDTO implements Serializable {
 
-    private String doctorName;
+    private Long id;
 
-    private String doctorSpecialization;
+    private String name;
 
-    private String doctorNumber;
+    private String specialization;
+
+    private String phone;
 }

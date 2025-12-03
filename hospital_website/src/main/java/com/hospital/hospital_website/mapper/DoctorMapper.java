@@ -10,9 +10,10 @@ public class DoctorMapper {
 
     public static DoctorResponseDTO doctorToDoctorResponseDTO(Doctor doctor) {
         return new DoctorResponseDTO(
+                doctor.getId(),
                 doctor.getName(),
-                doctor.getPhone(),
-                doctor.getSpecialization()
+                doctor.getSpecialization(),
+                doctor.getPhone()
         );
     }
 
