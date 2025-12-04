@@ -1,6 +1,5 @@
 package com.hospital.hospital_website.dto;
 
-import com.hospital.hospital_website.models.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,13 +12,9 @@ import java.time.LocalTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AppointmentResponseDTO {
+public class AppointmentRequestDTO {
 
-    private Long id;
-
-    private String username;
-
-    private String doctorName;
+    private Long doctorId;
 
     private LocalDate date;
 

@@ -1,26 +1,26 @@
 package com.hospital.hospital_website.controllers;
 
+import com.hospital.hospital_website.dto.AppointmentRequestDTO;
 import com.hospital.hospital_website.services.AppointmentService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/appointment")
+@RequestMapping("/appointments")
 @AllArgsConstructor
 public class AppointmentController {
 
     private AppointmentService appointmentService;
 
-    @PostMapping("/appointments")
-    public ResponseEntity<?> getAppointment(Long doctorId, LocalDate date,
-                                            LocalTime time, String symptoms, String status, HttpSession session) {
-        return appointmentService.getAppointment(doctorId, date, time, symptoms, status, session);
+    @PostMapping("/add")
+    public ResponseEntity<?> addAppointment(@RequestBody AppointmentRequestDTO request, HttpSession session) {
+        return appointmentService.addAppointment(request, session);
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<?> getAppointments(HttpSession session) {
+        return appointmentService.getAllByUser(session);
     }
 }
