@@ -1,6 +1,5 @@
 package com.hospital.hospital_website.dto;
 
-import com.hospital.hospital_website.models.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
