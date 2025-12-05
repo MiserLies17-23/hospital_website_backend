@@ -63,4 +63,14 @@ public class AppointmentService {
         }
         return ResponseEntity.ok(appointmentResponseDTOList);
     }
+
+    public ResponseEntity<?> deleteAppointment(Long id, HttpSession session) {
+        Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
+        if (optionalAppointment.isEmpty()) {
+            return ResponseEntity.ok("Запись не найдена");
+        }
+        Appointment appointment = optionalAppointment.get();
+        appointmentRepository.delete(appointment);
+        return ResponseEntity.ok("Запись удалена!");
+    }
 }

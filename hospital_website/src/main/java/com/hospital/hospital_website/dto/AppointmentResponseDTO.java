@@ -17,9 +17,9 @@ public class AppointmentResponseDTO {
 
     private Long id;
 
-    private String username;
-
     private String doctorName;
+
+    private String specialization;
 
     private LocalDate date;
 

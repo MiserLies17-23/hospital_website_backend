@@ -23,8 +23,8 @@ public class AppointmentMapper {
     public static AppointmentResponseDTO appointmentToAppointmentResponseDTO(Appointment appointment) {
         return new AppointmentResponseDTO(
                 appointment.getId(),
-                appointment.getUser().getUsername(),
                 appointment.getDoctor().getName(),
+                appointment.getDoctor().getSpecialization(),
                 appointment.getDate(),
                 appointment.getTime(),
                 appointment.getSymptoms(),

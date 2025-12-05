@@ -23,4 +23,9 @@ public class AppointmentController {
     public ResponseEntity<?> getAppointments(HttpSession session) {
         return appointmentService.getAllByUser(session);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteAppointment(@PathVariable Long id, HttpSession session) {
+        return appointmentService.deleteAppointment(id, session);
+    }
 }
