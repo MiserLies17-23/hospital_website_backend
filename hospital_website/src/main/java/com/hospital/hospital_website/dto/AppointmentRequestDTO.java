@@ -1,5 +1,6 @@
 package com.hospital.hospital_website.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,9 +17,9 @@ public class AppointmentRequestDTO {
 
     private Long doctorId;
 
-    private LocalDate date;
+    private String appointmentDate;
 
-    private LocalTime time;
+    private String appointmentTime;
 
     private String symptoms;
 

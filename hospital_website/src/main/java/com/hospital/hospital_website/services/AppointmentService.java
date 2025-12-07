@@ -16,6 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +51,43 @@ public class AppointmentService {
         return ResponseEntity.ok(appointmentResponseDTO);
     }
 
+    public ResponseEntity<?> getBusySlots(Long doctorId, LocalDate date) {
+        List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
+
+        if (appointments == null || appointments.isEmpty()) {
+            return ResponseEntity.ok(HttpStatus.NOT_FOUND);
+        }
+
+        List<String> busySlots = new ArrayList<>();
+
+        for (Appointment appointment : appointments) {
+            LocalDate appointmentDate = appointment.getDate();
+
+            if (appointmentDate != null && appointmentDate.equals(date)) {
+                String time = appointment.getTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+                if (!time.trim().isEmpty()) {
+                    busySlots.add(time);
+                }
+            }
+        }
+        // Проверка на прошедшее время
+        if (date.isEqual(LocalDate.now())) {
+            LocalTime now = LocalTime.now();
+
+            List<String> pastSlots = new ArrayList<>();
+
+            // Генерируем слоты с 9:00
+            LocalTime start = LocalTime.of(9, 0);
+
+            while (start.isBefore(now)) {
+                pastSlots.add(start.format(DateTimeFormatter.ofPattern("HH:mm")));
+                start = start.plusMinutes(30);
+            }
+            busySlots.addAll(pastSlots);
+        }
+        return ResponseEntity.ok(busySlots);
+    }
+
     public ResponseEntity<?> getAllByUser(HttpSession session) {
         UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
         Optional<User> optionalUser = userRepository.findById(userDTO.getId());
@@ -64,7 +104,7 @@ public class AppointmentService {
         return ResponseEntity.ok(appointmentResponseDTOList);
     }
 
-    public ResponseEntity<?> deleteAppointment(Long id, HttpSession session) {
+    public ResponseEntity<?> deleteAppointment(Long id) {
         Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
         if (optionalAppointment.isEmpty()) {
             return ResponseEntity.ok("Запись не найдена");

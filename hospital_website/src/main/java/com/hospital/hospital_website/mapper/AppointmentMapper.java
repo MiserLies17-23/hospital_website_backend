@@ -6,17 +6,29 @@ import com.hospital.hospital_website.models.Appointment;
 import com.hospital.hospital_website.models.Doctor;
 import com.hospital.hospital_website.models.User;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 public class AppointmentMapper {
 
     public static Appointment appointmentRequestToAppointment(AppointmentRequestDTO appointmentRequestDTO,
                                                               User user, Doctor doctor) {
+        System.out.println("=== В МАППЕРЕ ===");
+        System.out.println("DTO date: '" + appointmentRequestDTO.getAppointmentDate() + "'");
+        System.out.println("DTO time: '" + appointmentRequestDTO.getAppointmentTime() + "'");
+
         Appointment appointment = new Appointment();
         appointment.setUser(user);
         appointment.setDoctor(doctor);
-        appointment.setDate(appointmentRequestDTO.getDate());
-        appointment.setTime(appointmentRequestDTO.getTime());
+        appointment.setDate(LocalDate.parse(appointmentRequestDTO.getAppointmentDate()));
+        appointment.setTime(LocalTime.parse(appointmentRequestDTO.getAppointmentTime()));
         appointment.setSymptoms(appointmentRequestDTO.getSymptoms());
         appointment.setStatus(appointmentRequestDTO.getStatus());
+
+        System.out.println("Appointment date after set: " + appointment.getDate());
+        System.out.println("Appointment time after set: " + appointment.getTime());
+
         return appointment;
     }
 
@@ -25,8 +37,8 @@ public class AppointmentMapper {
                 appointment.getId(),
                 appointment.getDoctor().getName(),
                 appointment.getDoctor().getSpecialization(),
-                appointment.getDate(),
-                appointment.getTime(),
+                appointment.getDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                appointment.getTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 appointment.getSymptoms(),
                 appointment.getStatus()
         );

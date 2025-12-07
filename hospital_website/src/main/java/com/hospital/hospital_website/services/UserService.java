@@ -27,7 +27,11 @@ public class UserService {
             Optional<User> userOptional = userRepository.findByUsername(userCreateDTO.getUsername());
             if (userOptional.isPresent()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(Map.of("error", "Username already exists"));
+                        .body(Map.of("error", "Пользователь с таким именем уже существует"));
+            }
+            if(userOptional.equals(userRepository.findByEmail(userCreateDTO.getEmail()))) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Map.of("error", "Пользователь с таким email уже существует! Используйте другой"));
             }
 
             User user = UserMapper.userCrateDtoToUser(userCreateDTO);
