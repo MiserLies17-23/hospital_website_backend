@@ -18,13 +18,13 @@ public class Doctor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
+    @Column(nullable = false)
     private String name;
 
-    @Column(name = "specialization")
+    @Column(nullable = false)
     private String specialization;
 
-    @Column(name = "phone")
+    @Column(nullable = false)
     private String phone;
 
 }

@@ -18,18 +18,18 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name="name")
+    @Column(name="name", unique = true, nullable = false)
     private String username;
 
-    @Column(name="password")
+    @Column(nullable = false)
     private String password;
 
-    @Column (name="email")
+    @Column (nullable = false)
     private String email;
 
-    @Column(name="role")
+    @Column(nullable = false)
     private String role;
 
-    @Column(name="avatar")
+    @Column
     private String avatar;
 }
