@@ -1,4 +1,4 @@
-package com.hospital.hospital_website.mapper;
+package com.hospital.hospital_website.utils.mapper;
 
 import com.hospital.hospital_website.dto.DoctorResponseDTO;
 import com.hospital.hospital_website.models.Doctor;

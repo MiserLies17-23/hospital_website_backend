@@ -1,4 +1,4 @@
-package com.hospital.hospital_website.mapper;
+package com.hospital.hospital_website.utils.mapper;
 
 import com.hospital.hospital_website.dto.UserCreateDTO;
 import com.hospital.hospital_website.dto.UserResponseDTO;
@@ -96,7 +96,7 @@ public class UserMapper {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            e.getMessage();
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.hospital.hospital_website.mapper;
+package com.hospital.hospital_website.utils.mapper;
 
 import com.hospital.hospital_website.dto.AppointmentRequestDTO;
 import com.hospital.hospital_website.dto.AppointmentResponseDTO;
@@ -14,10 +14,6 @@ public class AppointmentMapper {
 
     public static Appointment appointmentRequestToAppointment(AppointmentRequestDTO appointmentRequestDTO,
                                                               User user, Doctor doctor) {
-        System.out.println("=== В МАППЕРЕ ===");
-        System.out.println("DTO date: '" + appointmentRequestDTO.getAppointmentDate() + "'");
-        System.out.println("DTO time: '" + appointmentRequestDTO.getAppointmentTime() + "'");
-
         Appointment appointment = new Appointment();
         appointment.setUser(user);
         appointment.setDoctor(doctor);
