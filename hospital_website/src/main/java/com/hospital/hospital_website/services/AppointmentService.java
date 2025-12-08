@@ -3,7 +3,10 @@ package com.hospital.hospital_website.services;
 import com.hospital.hospital_website.dto.AppointmentRequestDTO;
 import com.hospital.hospital_website.dto.AppointmentResponseDTO;
 import com.hospital.hospital_website.dto.UserResponseDTO;
-import com.hospital.hospital_website.mapper.AppointmentMapper;
+import com.hospital.hospital_website.exception.AppointmentFoundException;
+import com.hospital.hospital_website.exception.DoctorFoundException;
+import com.hospital.hospital_website.exception.UserFoundException;
+import com.hospital.hospital_website.utils.mapper.AppointmentMapper;
 import com.hospital.hospital_website.models.Appointment;
 import com.hospital.hospital_website.models.Doctor;
 import com.hospital.hospital_website.models.User;
@@ -12,7 +15,6 @@ import com.hospital.hospital_website.repository.DoctorRepository;
 import com.hospital.hospital_website.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -34,14 +36,12 @@ public class AppointmentService {
     public ResponseEntity<?> addAppointment(AppointmentRequestDTO request, HttpSession session) {
         UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
         Optional<User> optionalUser = userRepository.findById(userDTO.getId());
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        if (optionalUser.isEmpty())
+            throw new UserFoundException(userDTO.getId());
         User user = optionalUser.get();
         Optional<Doctor> optionalDoctor = doctorRepository.findById(request.getDoctorId());
-        if (optionalDoctor.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        if (optionalDoctor.isEmpty())
+            throw new DoctorFoundException(request.getDoctorId());
         Doctor doctor = optionalDoctor.get();
 
         Appointment appointment = AppointmentMapper.appointmentRequestToAppointment(request, user, doctor);
@@ -54,9 +54,8 @@ public class AppointmentService {
     public ResponseEntity<?> getBusySlots(Long doctorId, LocalDate date) {
         List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
 
-        if (appointments == null || appointments.isEmpty()) {
-            return ResponseEntity.ok(HttpStatus.NOT_FOUND);
-        }
+        if (appointments == null || appointments.isEmpty())
+            throw new AppointmentFoundException();
 
         List<String> busySlots = new ArrayList<>();
 
@@ -91,9 +90,8 @@ public class AppointmentService {
     public ResponseEntity<?> getAllByUser(HttpSession session) {
         UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
         Optional<User> optionalUser = userRepository.findById(userDTO.getId());
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        if (optionalUser.isEmpty())
+            throw new UserFoundException(userDTO.getId());
         User user = optionalUser.get();
         List<Appointment> appointments = appointmentRepository.findByUserId(user.getId());
         List<AppointmentResponseDTO> appointmentResponseDTOList = new ArrayList<>();
@@ -106,9 +104,8 @@ public class AppointmentService {
 
     public ResponseEntity<?> deleteAppointment(Long id) {
         Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
-        if (optionalAppointment.isEmpty()) {
-            return ResponseEntity.ok("Запись не найдена");
-        }
+        if (optionalAppointment.isEmpty())
+            throw new AppointmentFoundException(id);
         Appointment appointment = optionalAppointment.get();
         appointmentRepository.delete(appointment);
         return ResponseEntity.ok("Запись удалена!");

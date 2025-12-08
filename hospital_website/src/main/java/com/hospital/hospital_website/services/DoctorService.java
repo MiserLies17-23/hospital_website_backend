@@ -1,7 +1,7 @@
 package com.hospital.hospital_website.services;
 
 import com.hospital.hospital_website.dto.DoctorResponseDTO;
-import com.hospital.hospital_website.mapper.DoctorMapper;
+import com.hospital.hospital_website.utils.mapper.DoctorMapper;
 import com.hospital.hospital_website.models.Doctor;
 import com.hospital.hospital_website.repository.DoctorRepository;
 import lombok.AllArgsConstructor;
