@@ -3,9 +3,8 @@ package com.hospital.hospital_website.services;
 import com.hospital.hospital_website.dto.AppointmentRequestDTO;
 import com.hospital.hospital_website.dto.AppointmentResponseDTO;
 import com.hospital.hospital_website.dto.UserResponseDTO;
-import com.hospital.hospital_website.exception.AppointmentFoundException;
-import com.hospital.hospital_website.exception.DoctorFoundException;
-import com.hospital.hospital_website.exception.UserFoundException;
+import com.hospital.hospital_website.exception.EntityNotFoundException;
+import com.hospital.hospital_website.models.AppointmentStatus;
 import com.hospital.hospital_website.utils.mapper.AppointmentMapper;
 import com.hospital.hospital_website.models.Appointment;
 import com.hospital.hospital_website.models.Doctor;
@@ -37,11 +36,11 @@ public class AppointmentService {
         UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
         Optional<User> optionalUser = userRepository.findById(userDTO.getId());
         if (optionalUser.isEmpty())
-            throw new UserFoundException(userDTO.getId());
+            throw new EntityNotFoundException("Пользователь", userDTO.getId());
         User user = optionalUser.get();
         Optional<Doctor> optionalDoctor = doctorRepository.findById(request.getDoctorId());
         if (optionalDoctor.isEmpty())
-            throw new DoctorFoundException(request.getDoctorId());
+            throw new EntityNotFoundException("Доктор", request.getDoctorId());
         Doctor doctor = optionalDoctor.get();
 
         Appointment appointment = AppointmentMapper.appointmentRequestToAppointment(request, user, doctor);
@@ -55,7 +54,7 @@ public class AppointmentService {
         List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
 
         if (appointments == null || appointments.isEmpty())
-            throw new AppointmentFoundException();
+            throw new EntityNotFoundException("Запись не найдена!");
 
         List<String> busySlots = new ArrayList<>();
 
@@ -91,11 +90,12 @@ public class AppointmentService {
         UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
         Optional<User> optionalUser = userRepository.findById(userDTO.getId());
         if (optionalUser.isEmpty())
-            throw new UserFoundException(userDTO.getId());
+            throw new EntityNotFoundException("Пользователь", userDTO.getId());
         User user = optionalUser.get();
         List<Appointment> appointments = appointmentRepository.findByUserId(user.getId());
         List<AppointmentResponseDTO> appointmentResponseDTOList = new ArrayList<>();
         for (Appointment appointment : appointments) {
+            checkAppointmentStatus(appointment);
             AppointmentResponseDTO appointmentResponseDTO = AppointmentMapper.appointmentToAppointmentResponseDTO(appointment);
             appointmentResponseDTOList.add(appointmentResponseDTO);
         }
@@ -105,9 +105,26 @@ public class AppointmentService {
     public ResponseEntity<?> deleteAppointment(Long id) {
         Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
         if (optionalAppointment.isEmpty())
-            throw new AppointmentFoundException(id);
+            throw new EntityNotFoundException("Запись", id);
         Appointment appointment = optionalAppointment.get();
         appointmentRepository.delete(appointment);
         return ResponseEntity.ok("Запись удалена!");
+    }
+
+    public ResponseEntity<?> cancelAppointment(Long id) {
+        Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
+        if (optionalAppointment.isEmpty())
+            throw new EntityNotFoundException("Запись", id);
+        Appointment appointment = optionalAppointment.get();
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointmentRepository.save(appointment);
+        return ResponseEntity.ok("Запись отменена!");
+    }
+
+    public void checkAppointmentStatus(Appointment appointment) {
+        if (appointment.getDate().isBefore(LocalDate.now()) || appointment.getDate().equals(LocalDate.now())) {
+            appointment.setStatus(AppointmentStatus.COMPLETED);
+            appointmentRepository.save(appointment);
+        }
     }
 }

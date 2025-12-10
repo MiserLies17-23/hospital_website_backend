@@ -3,6 +3,7 @@ package com.hospital.hospital_website.utils.mapper;
 import com.hospital.hospital_website.dto.AppointmentRequestDTO;
 import com.hospital.hospital_website.dto.AppointmentResponseDTO;
 import com.hospital.hospital_website.models.Appointment;
+import com.hospital.hospital_website.models.AppointmentStatus;
 import com.hospital.hospital_website.models.Doctor;
 import com.hospital.hospital_website.models.User;
 
@@ -20,10 +21,7 @@ public class AppointmentMapper {
         appointment.setDate(LocalDate.parse(appointmentRequestDTO.getAppointmentDate()));
         appointment.setTime(LocalTime.parse(appointmentRequestDTO.getAppointmentTime()));
         appointment.setSymptoms(appointmentRequestDTO.getSymptoms());
-        appointment.setStatus(appointmentRequestDTO.getStatus());
-
-        System.out.println("Appointment date after set: " + appointment.getDate());
-        System.out.println("Appointment time after set: " + appointment.getTime());
+        appointment.setStatus(parseStatus(appointmentRequestDTO.getStatus()));
 
         return appointment;
     }
@@ -36,7 +34,13 @@ public class AppointmentMapper {
                 appointment.getDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
                 appointment.getTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 appointment.getSymptoms(),
-                appointment.getStatus()
+                appointment.getStatus().name()
         );
+    }
+
+    public static AppointmentStatus parseStatus(String status) {
+        if (status == null || status.isEmpty())
+            return AppointmentStatus.SCHEDULED;
+        return AppointmentStatus.valueOf(status.toUpperCase());
     }
 }

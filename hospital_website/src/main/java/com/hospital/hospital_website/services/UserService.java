@@ -3,7 +3,8 @@ package com.hospital.hospital_website.services;
 import com.hospital.hospital_website.dto.UserCreateDTO;
 import com.hospital.hospital_website.dto.UserLoginDTO;
 import com.hospital.hospital_website.dto.UserResponseDTO;
-import com.hospital.hospital_website.exception.UserFoundException;
+import com.hospital.hospital_website.exception.EntityAlreadyExistsException;
+import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.utils.mapper.UserMapper;
 import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.UserRepository;
@@ -23,11 +24,11 @@ public class UserService {
     private final UserRepository userRepository;
 
     public ResponseEntity<?> signup(UserCreateDTO userCreateDTO) {
-        Optional<User> userOptional = userRepository.findByUsername(userCreateDTO.getUsername());
-        if (userOptional.isPresent())
-            throw new UserFoundException("Пользователь с таким именем уже существует!");
-        if(userOptional.equals(userRepository.findByEmail(userCreateDTO.getEmail())))
-            throw new UserFoundException("Пользователь с таким email уже существует!");
+        if (userRepository.findByUsername(userCreateDTO.getUsername()).isPresent())
+            throw new EntityAlreadyExistsException("Пользователь с таким именем уже существует!");
+
+        if (userRepository.findByEmail(userCreateDTO.getEmail()).isPresent())
+            throw new EntityAlreadyExistsException("Пользователь с таким email уже существует!");
 
         User user = UserMapper.userCrateDtoToUser(userCreateDTO);
         User savedUser = userRepository.save(user);
@@ -39,10 +40,10 @@ public class UserService {
     public ResponseEntity<?> login(UserLoginDTO userLoginDTO, HttpSession session) {
         Optional<User> userOptional = userRepository.findByUsername(userLoginDTO.getUsername());
         if(userOptional.isEmpty())
-            throw new UserFoundException(); // заменить на ValidationException
+            throw new EntityNotFoundException("Пользователь не найден!");
         User user = userOptional.get();
         if (!user.getPassword().equals(userLoginDTO.getPassword()))
-            throw new UserFoundException("Неверный пароль!"); // заменить на ValidationException
+            throw new EntityNotFoundException("Неверный пароль!"); // заменить на ValidationException
         UserResponseDTO userResponseDTO = UserMapper.userToUserResponseDto(user);
         session.setAttribute("user", userResponseDTO);
         return ResponseEntity.ok(userResponseDTO);
@@ -56,7 +57,7 @@ public class UserService {
     public ResponseEntity<?> logout(HttpSession session) {
         UserResponseDTO userResponseDTO = (UserResponseDTO) session.getAttribute("user");
         if (userResponseDTO == null)
-            throw new UserFoundException();
+            throw new EntityNotFoundException("Пользователь не найден!");
         session.removeAttribute("user");
         session.invalidate();
         return ResponseEntity.ok().build();
@@ -65,7 +66,7 @@ public class UserService {
     public ResponseEntity<?> dashboard(HttpSession session) {
         UserResponseDTO userResponseDTO = (UserResponseDTO) session.getAttribute("user");
         if (userResponseDTO == null)
-            throw new UserFoundException();
+            throw new EntityNotFoundException("Пользователь не найден!");
         Optional<User> userOptional = userRepository.findByUsername(userResponseDTO.getUsername());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -82,7 +83,7 @@ public class UserService {
     public ResponseEntity<?> uploadAvatar(HttpSession session, MultipartFile file) {
         UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
         if (userDTO == null)
-            throw new UserFoundException();
+            throw new EntityNotFoundException("Пользователь не найден!");
 
         String username = userDTO.getUsername();
         Optional<User> userOptional = userRepository.findByUsername(username);
@@ -122,4 +123,5 @@ public class UserService {
         }
         return ResponseEntity.ofNullable("Аватар не найден");
     }
+
 }
