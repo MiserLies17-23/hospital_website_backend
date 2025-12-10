@@ -60,7 +60,6 @@ public class AppointmentService {
 
         for (Appointment appointment : appointments) {
             LocalDate appointmentDate = appointment.getDate();
-
             if (appointmentDate != null && appointmentDate.equals(date)) {
                 String time = appointment.getTime().format(DateTimeFormatter.ofPattern("HH:mm"));
                 if (!time.trim().isEmpty()) {
@@ -122,7 +121,10 @@ public class AppointmentService {
     }
 
     public void checkAppointmentStatus(Appointment appointment) {
-        if (appointment.getDate().isBefore(LocalDate.now()) || appointment.getDate().equals(LocalDate.now())) {
+        if (appointment.getStatus() != AppointmentStatus.SCHEDULED)
+            return;
+        if (appointment.getDate().isBefore(LocalDate.now()) ||
+                appointment.getDate().equals(LocalDate.now()) && appointment.getTime().isBefore(LocalTime.now())) {
             appointment.setStatus(AppointmentStatus.COMPLETED);
             appointmentRepository.save(appointment);
         }

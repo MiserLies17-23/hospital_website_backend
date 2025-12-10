@@ -37,4 +37,9 @@ public class AppointmentController {
     public ResponseEntity<?> deleteAppointment(@PathVariable Long id) {
         return appointmentService.deleteAppointment(id);
     }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelAppointment(@PathVariable Long id) {
+        return appointmentService.cancelAppointment(id);
+    }
 }
