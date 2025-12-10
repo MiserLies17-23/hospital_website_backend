@@ -18,6 +18,6 @@ public class Visitor {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name="visits")
+    @Column(nullable = false)
     private Long visitsCount;
 }

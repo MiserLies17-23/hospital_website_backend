@@ -38,5 +38,6 @@ public class Appointment {
     @Column(columnDefinition = "TEXT")
     private String symptoms;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status = AppointmentStatus.SCHEDULED;
 }

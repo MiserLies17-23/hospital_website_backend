@@ -18,6 +18,6 @@ public class Admin {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name="_name", nullable = false)
+    @Column(nullable = false)
     private String name;
 }
