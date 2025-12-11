@@ -3,7 +3,7 @@ package com.hospital.hospital_website.utils.validation;
 public abstract class Validator {
 
     private static final String EMAIL_REGEX = "[a-zA-Z_]+\\w*@[a-zA-Z]+.[a-zA-Z]+";
-    private static final String USERNAME_REGEX = "([a-zA-Z_]+\\w*){6,}";
+    private static final String USERNAME_REGEX = "[a-zA-Z_]+\\w{5,}";
 
     public static boolean usernameValidate(String username) {
         if (username.length() < 6)

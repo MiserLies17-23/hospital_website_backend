@@ -1,6 +1,7 @@
 package com.hospital.hospital_website.controllers;
 
 import com.hospital.hospital_website.dto.UserCreateDTO;
+import com.hospital.hospital_website.dto.UserEditDTO;
 import com.hospital.hospital_website.dto.UserLoginDTO;
 import com.hospital.hospital_website.services.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -29,6 +30,11 @@ public class UserController {
     @GetMapping("/checklogin")
     public ResponseEntity<?> checklogin(HttpSession session) {
         return userService.checkLogin(session);
+    }
+
+    @PostMapping("/edit")
+    public ResponseEntity<?> edit(@RequestBody UserEditDTO userEditDTO, HttpSession session) {
+        return userService.edit(userEditDTO, session);
     }
 
     @GetMapping("/logout")

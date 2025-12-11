@@ -1,6 +1,7 @@
 package com.hospital.hospital_website.services;
 
 import com.hospital.hospital_website.dto.UserCreateDTO;
+import com.hospital.hospital_website.dto.UserEditDTO;
 import com.hospital.hospital_website.dto.UserLoginDTO;
 import com.hospital.hospital_website.dto.UserResponseDTO;
 import com.hospital.hospital_website.exception.EntityAlreadyExistsException;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -124,4 +126,19 @@ public class UserService {
         return ResponseEntity.ofNullable("Аватар не найден");
     }
 
+    public ResponseEntity<?> edit(UserEditDTO userEditDTO, HttpSession session) {
+        UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
+        Optional<User> optionalUser = userRepository.findById(userDTO.getId());
+        if (optionalUser.isEmpty())
+            throw new EntityNotFoundException("Пользователь не найден!");
+        User user = optionalUser.get();
+        if (!(Objects.equals(user.getId(), userEditDTO.getId())))
+            throw new EntityNotFoundException("Ошибка поиска пользователя");
+        if(!user.getUsername().equals(userEditDTO.getUsername()))
+            user.setUsername(userEditDTO.getUsername());
+        if(!user.getEmail().equals(userEditDTO.getEmail()))
+            user.setEmail(userEditDTO.getEmail());
+        userRepository.save(user);
+        return ResponseEntity.ok(UserMapper.userToUserResponseDto(user));
+    }
 }

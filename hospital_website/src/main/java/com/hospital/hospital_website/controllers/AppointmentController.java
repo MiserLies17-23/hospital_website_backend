@@ -33,7 +33,7 @@ public class AppointmentController {
         return appointmentService.getAllByUser(session);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/delete")
     public ResponseEntity<?> deleteAppointment(@PathVariable Long id) {
         return appointmentService.deleteAppointment(id);
     }
