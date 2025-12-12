@@ -4,6 +4,7 @@ import com.hospital.hospital_website.models.Appointment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByUserId(Long id);
 
     List<Appointment> findAll();
+
+    List<Appointment> findByDate(LocalDate date);
 
     List<Appointment> findByDoctorId(Long id);
 }

@@ -32,4 +32,7 @@ public class User {
 
     @Column
     private String avatar;
+
+    @Column(nullable = false)
+    private int visitsCount;
 }

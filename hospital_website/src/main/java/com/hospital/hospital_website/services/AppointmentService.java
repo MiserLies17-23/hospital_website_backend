@@ -54,13 +54,14 @@ public class AppointmentService {
         List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
 
         if (appointments == null || appointments.isEmpty())
-            throw new EntityNotFoundException("Запись не найдена!");
+            throw new EntityNotFoundException("Записи не найдены!");
 
         List<String> busySlots = new ArrayList<>();
 
         for (Appointment appointment : appointments) {
             LocalDate appointmentDate = appointment.getDate();
-            if (appointmentDate != null && appointmentDate.equals(date)) {
+            if (appointmentDate != null && appointmentDate.equals(date)
+                    && appointment.getStatus().equals(AppointmentStatus.SCHEDULED)) {
                 String time = appointment.getTime().format(DateTimeFormatter.ofPattern("HH:mm"));
                 if (!time.trim().isEmpty()) {
                     busySlots.add(time);
@@ -73,8 +74,7 @@ public class AppointmentService {
 
             List<String> pastSlots = new ArrayList<>();
 
-            // Генерируем слоты с 9:00
-            LocalTime start = LocalTime.of(9, 0);
+            LocalTime start = LocalTime.of(9, 0); // генерируем слоты с 9:00
 
             while (start.isBefore(now)) {
                 pastSlots.add(start.format(DateTimeFormatter.ofPattern("HH:mm")));

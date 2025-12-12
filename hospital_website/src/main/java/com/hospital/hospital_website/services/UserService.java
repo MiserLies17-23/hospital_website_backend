@@ -46,8 +46,10 @@ public class UserService {
         User user = userOptional.get();
         if (!user.getPassword().equals(userLoginDTO.getPassword()))
             throw new EntityNotFoundException("Неверный пароль!"); // заменить на ValidationException
+        user.setVisitsCount(user.getVisitsCount() + 1);
         UserResponseDTO userResponseDTO = UserMapper.userToUserResponseDto(user);
         session.setAttribute("user", userResponseDTO);
+        userRepository.save(user);
         return ResponseEntity.ok(userResponseDTO);
     }
 
