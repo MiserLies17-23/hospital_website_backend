@@ -9,6 +9,7 @@ import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.utils.mapper.UserMapper;
 import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.UserRepository;
+import com.hospital.hospital_website.utils.validation.Validator;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,9 @@ public class UserService {
     private final UserRepository userRepository;
 
     public ResponseEntity<?> signup(UserCreateDTO userCreateDTO) {
+
+        userParamsValidate(userCreateDTO);
+
         if (userRepository.findByUsername(userCreateDTO.getUsername()).isPresent())
             throw new EntityAlreadyExistsException("Пользователь с таким именем уже существует!");
 
@@ -142,5 +146,11 @@ public class UserService {
             user.setEmail(userEditDTO.getEmail());
         userRepository.save(user);
         return ResponseEntity.ok(UserMapper.userToUserResponseDto(user));
+    }
+
+    public void userParamsValidate(UserCreateDTO userCreateDTO) {
+        Validator.usernameValidate(userCreateDTO.getUsername());
+        Validator.emailValidate(userCreateDTO.getEmail());
+        Validator.passwordValidate(userCreateDTO.getPassword());
     }
 }

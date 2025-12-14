@@ -10,10 +10,6 @@ public class EntityNotFoundException extends AppException {
         super(String.format("%s с ID %d не найден", entityName, id), HttpStatus.NOT_FOUND);
     }
 
-    public EntityNotFoundException(String entityName, String identifier) {
-        super(String.format("%s '%s' не найден", entityName, identifier), HttpStatus.NOT_FOUND);
-    }
-
     public EntityNotFoundException(String message) {
         super(message, HttpStatus.NOT_FOUND);
     }
