@@ -1,6 +1,6 @@
 package com.hospital.hospital_website.controllers;
 
-import com.hospital.hospital_website.dto.AppointmentRequestDTO;
+import com.hospital.hospital_website.dto.request.AppointmentRequestDTO;
 import com.hospital.hospital_website.services.AppointmentService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;

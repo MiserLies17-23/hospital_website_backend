@@ -14,7 +14,7 @@ public class DoctorController {
 
     private final DoctorService doctorService;
 
-    @GetMapping("/doctors")
+    @GetMapping("/")
     public ResponseEntity<?> getAllDoctors() {
         return doctorService.getAllDoctors();
     }

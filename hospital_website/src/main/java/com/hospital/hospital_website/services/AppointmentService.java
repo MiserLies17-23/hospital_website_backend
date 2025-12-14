@@ -1,10 +1,10 @@
 package com.hospital.hospital_website.services;
 
-import com.hospital.hospital_website.dto.AppointmentRequestDTO;
-import com.hospital.hospital_website.dto.AppointmentResponseDTO;
-import com.hospital.hospital_website.dto.UserResponseDTO;
+import com.hospital.hospital_website.dto.request.AppointmentRequestDTO;
+import com.hospital.hospital_website.dto.response.AppointmentResponseDTO;
+import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
-import com.hospital.hospital_website.models.AppointmentStatus;
+import com.hospital.hospital_website.models.enums.AppointmentStatus;
 import com.hospital.hospital_website.utils.mapper.AppointmentMapper;
 import com.hospital.hospital_website.models.Appointment;
 import com.hospital.hospital_website.models.Doctor;

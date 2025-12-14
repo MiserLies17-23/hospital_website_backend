@@ -1,4 +1,4 @@
-package com.hospital.hospital_website.dto;
+package com.hospital.hospital_website.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DoctorCreateDTO {
+public class DoctorRequestDTO {
 
     private String doctorName;
 

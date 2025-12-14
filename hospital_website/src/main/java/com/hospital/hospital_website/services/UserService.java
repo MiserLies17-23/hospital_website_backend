@@ -1,9 +1,9 @@
 package com.hospital.hospital_website.services;
 
-import com.hospital.hospital_website.dto.UserCreateDTO;
-import com.hospital.hospital_website.dto.UserEditDTO;
-import com.hospital.hospital_website.dto.UserLoginDTO;
-import com.hospital.hospital_website.dto.UserResponseDTO;
+import com.hospital.hospital_website.dto.request.UserCreateDTO;
+import com.hospital.hospital_website.dto.request.UserEditDTO;
+import com.hospital.hospital_website.dto.request.UserLoginDTO;
+import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.exception.EntityAlreadyExistsException;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.utils.mapper.UserMapper;

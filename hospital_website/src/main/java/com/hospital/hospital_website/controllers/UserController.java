@@ -1,8 +1,8 @@
 package com.hospital.hospital_website.controllers;
 
-import com.hospital.hospital_website.dto.UserCreateDTO;
-import com.hospital.hospital_website.dto.UserEditDTO;
-import com.hospital.hospital_website.dto.UserLoginDTO;
+import com.hospital.hospital_website.dto.request.UserCreateDTO;
+import com.hospital.hospital_website.dto.request.UserEditDTO;
+import com.hospital.hospital_website.dto.request.UserLoginDTO;
 import com.hospital.hospital_website.services.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;

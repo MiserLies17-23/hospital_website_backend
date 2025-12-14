@@ -1,8 +1,9 @@
 package com.hospital.hospital_website.utils.mapper;
 
-import com.hospital.hospital_website.dto.UserCreateDTO;
-import com.hospital.hospital_website.dto.UserResponseDTO;
+import com.hospital.hospital_website.dto.request.UserCreateDTO;
+import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.models.User;
+import com.hospital.hospital_website.models.enums.UserRole;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -10,9 +11,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class UserMapper {
+public abstract class UserMapper {
 
-    private static final String DEFAULT_ROLE = "USER";
+
+    private static final UserRole DEFAULT_ROLE = UserRole.USER;
 
     private static final String USER_IMAGE_PATH = "C:\\users\\THUNDEROBOT\\IdeaProjects\\hospital_website\\hospital_website\\src\\main\\resources\\images\\userImages";
 
@@ -48,7 +50,7 @@ public class UserMapper {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole(),
+                user.getRole().toString(),
                 user.getAvatar(),
                 user.getVisitsCount()
         );

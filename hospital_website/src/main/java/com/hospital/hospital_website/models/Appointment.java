@@ -1,5 +1,6 @@
 package com.hospital.hospital_website.models;
 
+import com.hospital.hospital_website.models.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "appointments")
+@Table(name="appointments")
 public class Appointment {
 
     @Id

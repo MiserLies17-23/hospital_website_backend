@@ -1,4 +1,4 @@
-package com.hospital.hospital_website.dto;
+package com.hospital.hospital_website.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

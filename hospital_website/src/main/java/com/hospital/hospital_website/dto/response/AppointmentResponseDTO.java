@@ -1,4 +1,4 @@
-package com.hospital.hospital_website.dto;
+package com.hospital.hospital_website.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,9 +9,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AppointmentRequestDTO {
+public class AppointmentResponseDTO {
 
-    private Long doctorId;
+    private Long id;
+
+    private String doctorName;
+
+    private String specialization;
 
     private String appointmentDate;
 

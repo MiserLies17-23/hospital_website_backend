@@ -1,9 +1,9 @@
 package com.hospital.hospital_website.utils.mapper;
 
-import com.hospital.hospital_website.dto.AppointmentRequestDTO;
-import com.hospital.hospital_website.dto.AppointmentResponseDTO;
+import com.hospital.hospital_website.dto.request.AppointmentRequestDTO;
+import com.hospital.hospital_website.dto.response.AppointmentResponseDTO;
 import com.hospital.hospital_website.models.Appointment;
-import com.hospital.hospital_website.models.AppointmentStatus;
+import com.hospital.hospital_website.models.enums.AppointmentStatus;
 import com.hospital.hospital_website.models.Doctor;
 import com.hospital.hospital_website.models.User;
 
@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-public class AppointmentMapper {
+public abstract class AppointmentMapper {
 
     public static Appointment appointmentRequestToAppointment(AppointmentRequestDTO appointmentRequestDTO,
                                                               User user, Doctor doctor) {
