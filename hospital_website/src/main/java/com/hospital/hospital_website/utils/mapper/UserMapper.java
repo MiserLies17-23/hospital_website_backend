@@ -83,7 +83,7 @@ public class UserMapper {
 
     }
 
-    public static void deleteAvatar(String avatarUrl, String username) {
+    public static void deleteAvatar(String avatarUrl) {
         if (avatarUrl == null || avatarUrl.equals(DEFAULT_USER_IMAGE_URL)) {
             return;
         }
@@ -100,4 +100,5 @@ public class UserMapper {
             e.getMessage();
         }
     }
+
 }

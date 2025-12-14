@@ -119,7 +119,7 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            UserMapper.deleteAvatar(user.getAvatar(), user.getUsername()); // удаляем старый аватар
+            UserMapper.deleteAvatar(user.getAvatar()); // удаляем старый аватар
             String avatarUrl = UserMapper.avatarProcessing(null, username); // загружаем дефолтный
             user.setAvatar(avatarUrl); // сохраняем дефолтный аватар для пользователя
             userRepository.save(user); // сохраняем изменения пользователя в репозиторий
