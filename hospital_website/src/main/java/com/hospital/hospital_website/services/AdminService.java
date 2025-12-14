@@ -1,8 +1,8 @@
 package com.hospital.hospital_website.services;
 
-import com.hospital.hospital_website.dto.DoctorCreateDTO;
-import com.hospital.hospital_website.dto.UserEditDTO;
-import com.hospital.hospital_website.dto.UserResponseDTO;
+import com.hospital.hospital_website.dto.request.DoctorRequestDTO;
+import com.hospital.hospital_website.dto.request.UserEditDTO;
+import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.models.Doctor;
 import com.hospital.hospital_website.models.User;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -24,19 +25,33 @@ public class AdminService {
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
 
-    public ResponseEntity<?> addNewDoctor(DoctorCreateDTO doctorCreateDTO) {
-        Doctor doctor = new Doctor();
-        doctor.setName(doctorCreateDTO.getDoctorName());
-        doctor.setSpecialization(doctorCreateDTO.getDoctorSpecialization());
-        doctor.setPhone(doctorCreateDTO.getDoctorPhone());
+    public ResponseEntity<?> addNewDoctor(DoctorRequestDTO doctorRequestDTO) {
+        Doctor doctor = DoctorMapper.doctorCreateDTOToDoctor(doctorRequestDTO);
+        doctorRepository.save(doctor);
+        return ResponseEntity.ok(DoctorMapper.doctorToDoctorResponseDTO(doctor));
+    }
+
+    public ResponseEntity<?> editDoctor(Long doctorId, DoctorRequestDTO doctorRequestDTO) {
+        Optional<Doctor> optionalDoctor = doctorRepository.findById(doctorId);
+        if (optionalDoctor.isEmpty())
+            throw new EntityNotFoundException("Доктор не найден!");
+        Doctor doctor = optionalDoctor.get();
+        if (!Objects.equals(doctorId, doctor.getId()))
+            throw new EntityNotFoundException("Ошибка поиска доктора...");
+        if(!doctor.getName().equals(doctorRequestDTO.getDoctorName()))
+            doctor.setName(doctorRequestDTO.getDoctorName());
+        if(!doctor.getSpecialization().equals(doctorRequestDTO.getDoctorSpecialization()))
+            doctor.setSpecialization(doctorRequestDTO.getDoctorSpecialization());
+        if(!doctor.getPhone().equals(doctorRequestDTO.getDoctorPhone()))
+            doctor.setPhone(doctorRequestDTO.getDoctorPhone());
+        doctorRepository.save(doctor);
         return ResponseEntity.ok(DoctorMapper.doctorToDoctorResponseDTO(doctor));
     }
 
     public ResponseEntity<?> deleteDoctor(Long id) {
         Optional<Doctor> optionalDoctor = doctorRepository.findById(id);
-        if (optionalDoctor.isEmpty()) {
+        if (optionalDoctor.isEmpty())
             throw new EntityNotFoundException("Доктор не найден!");
-        }
         Doctor doctor = optionalDoctor.get();
         doctorRepository.delete(doctor);
         return ResponseEntity.ok("Доктор удалён!");
@@ -44,9 +59,8 @@ public class AdminService {
 
     public ResponseEntity<?> getAllUsers() {
         List<User> users = userRepository.findAll();
-        if (users.isEmpty()) {
+        if (users.isEmpty())
             throw new EntityNotFoundException("Пользователи не найдены!");
-        }
         List<UserResponseDTO> userResponseDTOS = new ArrayList<>();
         for (User user : users) {
             UserResponseDTO userResponseDTO = UserMapper.userToUserResponseDto(user);
@@ -57,10 +71,11 @@ public class AdminService {
 
     public ResponseEntity<?> editUser(Long id, UserEditDTO userEditDTO) {
         Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isEmpty()) {
+        if (optionalUser.isEmpty())
             throw new EntityNotFoundException("Пользователь не найден!");
-        }
         User user = optionalUser.get();
+        if (!Objects.equals(id, user.getId()))
+            throw new EntityNotFoundException("Ошибка поиска пользователя...");
         if(!user.getUsername().equals(userEditDTO.getUsername()))
             user.setUsername(userEditDTO.getUsername());
         if(!user.getEmail().equals(userEditDTO.getEmail()))
@@ -71,13 +86,11 @@ public class AdminService {
 
     public ResponseEntity<?> deleteUser(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isEmpty()) {
+        if (optionalUser.isEmpty())
             throw new EntityNotFoundException("Пользователь не найден!");
-        }
         User user = optionalUser.get();
         userRepository.delete(user);
         return ResponseEntity.ok("Пользователь удалён!");
     }
-
 
 }

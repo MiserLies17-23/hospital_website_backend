@@ -1,8 +1,8 @@
 package com.hospital.hospital_website.controllers;
 
-import com.hospital.hospital_website.dto.DoctorCreateDTO;
-import com.hospital.hospital_website.dto.UserCreateDTO;
-import com.hospital.hospital_website.dto.UserEditDTO;
+import com.hospital.hospital_website.dto.request.DoctorRequestDTO;
+import com.hospital.hospital_website.dto.request.UserCreateDTO;
+import com.hospital.hospital_website.dto.request.UserEditDTO;
 import com.hospital.hospital_website.services.AdminService;
 import com.hospital.hospital_website.services.DoctorService;
 
@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/admin")
 @AllArgsConstructor
 public class AdminController {
     private AdminService adminService;
@@ -25,8 +25,13 @@ public class AdminController {
     }
 
     @PostMapping("/doctors/add")
-    public ResponseEntity<?> addDoctor(@RequestBody DoctorCreateDTO doctorCreateDTO) {
-        return adminService.addNewDoctor(doctorCreateDTO);
+    public ResponseEntity<?> addDoctor(@RequestBody DoctorRequestDTO doctorRequestDTO) {
+        return adminService.addNewDoctor(doctorRequestDTO);
+    }
+
+    @PostMapping("/doctors{doctorId}")
+    public ResponseEntity<?> editDoctor(@PathVariable Long doctorId, @RequestBody DoctorRequestDTO doctorRequestDTO) {
+        return adminService.editDoctor(doctorId, doctorRequestDTO);
     }
 
     @DeleteMapping("/doctors/{doctorId}")
