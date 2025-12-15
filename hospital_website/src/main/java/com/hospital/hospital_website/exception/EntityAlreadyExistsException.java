@@ -11,7 +11,6 @@ public class EntityAlreadyExistsException extends AppException {
                 HttpStatus.CONFLICT);
     }
 
-    // Универсальный конструктор
     public EntityAlreadyExistsException(String message) {
         super(message, HttpStatus.CONFLICT);
     }
