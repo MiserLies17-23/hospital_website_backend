@@ -6,11 +6,13 @@ import com.hospital.hospital_website.models.Appointment;
 import com.hospital.hospital_website.models.enums.AppointmentStatus;
 import com.hospital.hospital_website.models.Doctor;
 import com.hospital.hospital_website.models.User;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+@Component
 public abstract class AppointmentMapper {
 
     public static Appointment appointmentRequestToAppointment(AppointmentRequestDTO appointmentRequestDTO,

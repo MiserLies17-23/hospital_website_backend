@@ -3,11 +3,13 @@ package com.hospital.hospital_website.utils.mapper;
 import com.hospital.hospital_website.dto.request.NewsRequestDTO;
 import com.hospital.hospital_website.dto.response.NewsResponseDTO;
 import com.hospital.hospital_website.models.News;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class NewsMapper {
 
     public static News newsRequestDTOtoNews(NewsRequestDTO newsRequestDTO) {

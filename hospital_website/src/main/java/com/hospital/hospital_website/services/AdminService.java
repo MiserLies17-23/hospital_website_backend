@@ -2,6 +2,7 @@ package com.hospital.hospital_website.services;
 
 import com.hospital.hospital_website.dto.request.DoctorRequestDTO;
 import com.hospital.hospital_website.dto.request.UserEditDTO;
+import com.hospital.hospital_website.dto.response.DoctorResponseDTO;
 import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.models.Doctor;
@@ -25,13 +26,13 @@ public class AdminService {
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
 
-    public ResponseEntity<?> addNewDoctor(DoctorRequestDTO doctorRequestDTO) {
+    public DoctorResponseDTO addNewDoctor(DoctorRequestDTO doctorRequestDTO) {
         Doctor doctor = DoctorMapper.doctorCreateDTOToDoctor(doctorRequestDTO);
-        doctorRepository.save(doctor);
-        return ResponseEntity.ok(DoctorMapper.doctorToDoctorResponseDTO(doctor));
+        Doctor savedDoctor = doctorRepository.save(doctor);
+        return DoctorMapper.doctorToDoctorResponseDTO(savedDoctor);
     }
 
-    public ResponseEntity<?> editDoctor(Long doctorId, DoctorRequestDTO doctorRequestDTO) {
+    public DoctorResponseDTO editDoctor(Long doctorId, DoctorRequestDTO doctorRequestDTO) {
         Optional<Doctor> optionalDoctor = doctorRepository.findById(doctorId);
         if (optionalDoctor.isEmpty())
             throw new EntityNotFoundException("Доктор не найден!");
@@ -44,20 +45,19 @@ public class AdminService {
             doctor.setSpecialization(doctorRequestDTO.getDoctorSpecialization());
         if(!doctor.getPhone().equals(doctorRequestDTO.getDoctorPhone()))
             doctor.setPhone(doctorRequestDTO.getDoctorPhone());
-        doctorRepository.save(doctor);
-        return ResponseEntity.ok(DoctorMapper.doctorToDoctorResponseDTO(doctor));
+        Doctor updatedDoctor = doctorRepository.save(doctor);
+        return DoctorMapper.doctorToDoctorResponseDTO(updatedDoctor);
     }
 
-    public ResponseEntity<?> deleteDoctor(Long id) {
+    public void deleteDoctor(Long id) {
         Optional<Doctor> optionalDoctor = doctorRepository.findById(id);
         if (optionalDoctor.isEmpty())
             throw new EntityNotFoundException("Доктор не найден!");
         Doctor doctor = optionalDoctor.get();
         doctorRepository.delete(doctor);
-        return ResponseEntity.ok("Доктор удалён!");
     }
 
-    public ResponseEntity<?> getAllUsers() {
+    public List<UserResponseDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
         if (users.isEmpty())
             throw new EntityNotFoundException("Пользователи не найдены!");
@@ -66,10 +66,10 @@ public class AdminService {
             UserResponseDTO userResponseDTO = UserMapper.userToUserResponseDto(user);
             userResponseDTOS.add(userResponseDTO);
         }
-        return ResponseEntity.ok(userResponseDTOS);
+        return userResponseDTOS;
     }
 
-    public ResponseEntity<?> editUser(Long id, UserEditDTO userEditDTO) {
+    public UserResponseDTO editUser(Long id, UserEditDTO userEditDTO) {
         Optional<User> optionalUser = userRepository.findById(id);
         if (optionalUser.isEmpty())
             throw new EntityNotFoundException("Пользователь не найден!");
@@ -80,17 +80,16 @@ public class AdminService {
             user.setUsername(userEditDTO.getUsername());
         if(!user.getEmail().equals(userEditDTO.getEmail()))
             user.setEmail(userEditDTO.getEmail());
-        userRepository.save(user);
-        return ResponseEntity.ok(UserMapper.userToUserResponseDto(user));
+        User updatedUser = userRepository.save(user);
+        return UserMapper.userToUserResponseDto(updatedUser);
     }
 
-    public ResponseEntity<?> deleteUser(Long id) {
+    public void deleteUser(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
         if (optionalUser.isEmpty())
             throw new EntityNotFoundException("Пользователь не найден!");
         User user = optionalUser.get();
         userRepository.delete(user);
-        return ResponseEntity.ok("Пользователь удалён!");
     }
 
 }

@@ -12,8 +12,6 @@ import com.hospital.hospital_website.repository.UserRepository;
 import com.hospital.hospital_website.utils.validation.Validator;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +24,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public ResponseEntity<?> signup(UserCreateDTO userCreateDTO) {
+    public UserResponseDTO signup(UserCreateDTO userCreateDTO) {
 
         userParamsValidate(userCreateDTO);
 
@@ -38,12 +36,10 @@ public class UserService {
 
         User user = UserMapper.userCrateDtoToUser(userCreateDTO);
         User savedUser = userRepository.save(user);
-        UserResponseDTO responseDTO = UserMapper.userToUserResponseDto(savedUser);
-
-        return ResponseEntity.ok(responseDTO);
+        return UserMapper.userToUserResponseDto(savedUser);
     }
 
-    public ResponseEntity<?> login(UserLoginDTO userLoginDTO, HttpSession session) {
+    public UserResponseDTO login(UserLoginDTO userLoginDTO, HttpSession session) {
         Optional<User> userOptional = userRepository.findByUsername(userLoginDTO.getUsername());
         if(userOptional.isEmpty())
             throw new EntityNotFoundException("Пользователь не найден!");
@@ -53,86 +49,85 @@ public class UserService {
         user.setVisitsCount(user.getVisitsCount() + 1);
         UserResponseDTO userResponseDTO = UserMapper.userToUserResponseDto(user);
         session.setAttribute("user", userResponseDTO);
-        userRepository.save(user);
-        return ResponseEntity.ok(userResponseDTO);
+        User savedUser = userRepository.save(user);
+        return UserMapper.userToUserResponseDto(savedUser);
     }
 
-    public ResponseEntity<?> checkLogin(HttpSession session) {
-        UserResponseDTO userResponseDTO = (UserResponseDTO) session.getAttribute("user");
-        return ResponseEntity.ok(userResponseDTO);
+    public UserResponseDTO checkLogin(HttpSession session) {
+        return (UserResponseDTO) session.getAttribute("user");
     }
 
-    public ResponseEntity<?> logout(HttpSession session) {
+    public void logout(HttpSession session) {
         UserResponseDTO userResponseDTO = (UserResponseDTO) session.getAttribute("user");
         if (userResponseDTO == null)
             throw new EntityNotFoundException("Пользователь не найден!");
         session.removeAttribute("user");
         session.invalidate();
-        return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<?> dashboard(HttpSession session) {
+    public UserResponseDTO dashboard(HttpSession session) {
         UserResponseDTO userResponseDTO = (UserResponseDTO) session.getAttribute("user");
         if (userResponseDTO == null)
             throw new EntityNotFoundException("Пользователь не найден!");
         Optional<User> userOptional = userRepository.findByUsername(userResponseDTO.getUsername());
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
+        if (userOptional.isEmpty())
+            throw new EntityNotFoundException("Ошибка поиска пользователя...");
 
-            // Обновляем сессию
-            session.setAttribute("user", updatedUser);
+        User user = userOptional.get();
+        UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
 
-            return ResponseEntity.ok(updatedUser);
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        // Обновляем сессию
+        session.setAttribute("user", updatedUser);
+        userRepository.save(user);
+        return updatedUser;
     }
 
-    public ResponseEntity<?> uploadAvatar(HttpSession session, MultipartFile file) {
+    public String uploadAvatar(HttpSession session, MultipartFile file) {
         UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
         if (userDTO == null)
             throw new EntityNotFoundException("Пользователь не найден!");
 
         String username = userDTO.getUsername();
         Optional<User> userOptional = userRepository.findByUsername(username);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            String avatarUrl = UserMapper.avatarProcessing(file, username);
-            user.setAvatar(avatarUrl);
-            userRepository.save(user);
 
-            UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
-            session.setAttribute("user", updatedUser);
+        if (userOptional.isEmpty())
+            throw new EntityNotFoundException("Ошибка загрузки пользовательских данных");
 
-            return ResponseEntity.ok(avatarUrl);
-        }
-        return ResponseEntity.ofNullable("Ошибка при загрузке аватара");
+        User user = userOptional.get();
+        String avatarUrl = UserMapper.avatarProcessing(file, username);
+        user.setAvatar(avatarUrl);
+        userRepository.save(user);
+
+        UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
+        session.setAttribute("user", updatedUser);
+
+        return avatarUrl;
     }
 
-    public ResponseEntity<?>deleteAvatar(HttpSession session) {
+    public String deleteAvatar(HttpSession session) {
         UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
-        if (userDTO == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Для примера оставим!
-        }
+        if (userDTO == null)
+            throw new EntityNotFoundException("Пользователь не найден!");
 
         String username = userDTO.getUsername();
         Optional<User> userOptional = userRepository.findByUsername(username);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            UserMapper.deleteAvatar(user.getAvatar()); // удаляем старый аватар
-            String avatarUrl = UserMapper.avatarProcessing(null, username); // загружаем дефолтный
-            user.setAvatar(avatarUrl); // сохраняем дефолтный аватар для пользователя
-            userRepository.save(user); // сохраняем изменения пользователя в репозиторий
 
-            UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
-            session.setAttribute("user", updatedUser); // Обновляем сессию
+        if (userOptional.isEmpty())
+            throw new EntityNotFoundException("Ошибка загрузки пользовательских данных");
 
-            return ResponseEntity.ok("Аватар удалён");
-        }
-        return ResponseEntity.ofNullable("Аватар не найден");
+        User user = userOptional.get();
+        UserMapper.deleteAvatar(user.getAvatar()); // удаляем старый аватар
+        String defaultAvatarUrl = UserMapper.avatarProcessing(null, username); // загружаем дефолтный
+        user.setAvatar(defaultAvatarUrl); // сохраняем дефолтный аватар для пользователя
+        userRepository.save(user); // сохраняем изменения пользователя в репозиторий
+
+        UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
+        session.setAttribute("user", updatedUser); // Обновляем сессию
+
+        return defaultAvatarUrl;
     }
 
-    public ResponseEntity<?> edit(UserEditDTO userEditDTO, HttpSession session) {
+    public UserResponseDTO edit(UserEditDTO userEditDTO, HttpSession session) {
         UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
         Optional<User> optionalUser = userRepository.findById(userDTO.getId());
         if (optionalUser.isEmpty())
@@ -144,8 +139,9 @@ public class UserService {
             user.setUsername(userEditDTO.getUsername());
         if(!user.getEmail().equals(userEditDTO.getEmail()))
             user.setEmail(userEditDTO.getEmail());
-        userRepository.save(user);
-        return ResponseEntity.ok(UserMapper.userToUserResponseDto(user));
+
+        User savedUser = userRepository.save(user);
+        return UserMapper.userToUserResponseDto(savedUser);
     }
 
     public void userParamsValidate(UserCreateDTO userCreateDTO) {

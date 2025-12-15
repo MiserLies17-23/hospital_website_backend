@@ -4,10 +4,12 @@ import com.hospital.hospital_website.dto.request.DoctorRequestDTO;
 import com.hospital.hospital_website.dto.response.DoctorResponseDTO;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.models.Doctor;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public abstract class DoctorMapper {
 
     public static Doctor doctorCreateDTOToDoctor(DoctorRequestDTO doctorRequestDTO) {

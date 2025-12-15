@@ -4,6 +4,7 @@ import com.hospital.hospital_website.dto.request.UserCreateDTO;
 import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.models.enums.UserRole;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -11,12 +12,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Component
 public abstract class UserMapper {
 
 
     private static final UserRole DEFAULT_ROLE = UserRole.USER;
 
-    private static final String USER_IMAGE_PATH = "C:\\users\\THUNDEROBOT\\IdeaProjects\\hospital_website\\hospital_website\\src\\main\\resources\\images\\userImages";
+    private static final String USER_IMAGE_PATH = "C:\\users\\THUNDEROBOT\\IdeaProjects\\hospital_website\\hospital_website\\src\\main\\resources\\static\\images\\userImages";
 
     private static final String USER_IMAGE_URL = "http://localhost:8080/images/userImages/";
 
@@ -86,9 +88,8 @@ public abstract class UserMapper {
     }
 
     public static void deleteAvatar(String avatarUrl) {
-        if (avatarUrl == null || avatarUrl.equals(DEFAULT_USER_IMAGE_URL)) {
+        if (avatarUrl == null || avatarUrl.equals(DEFAULT_USER_IMAGE_URL))
             return;
-        }
 
         try {
             String fileName = avatarUrl.replace(USER_IMAGE_URL, "");

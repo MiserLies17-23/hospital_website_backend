@@ -32,7 +32,7 @@ public class AppointmentService {
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
 
-    public ResponseEntity<?> addAppointment(AppointmentRequestDTO request, HttpSession session) {
+    public AppointmentResponseDTO addAppointment(AppointmentRequestDTO request, HttpSession session) {
         UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
         Optional<User> optionalUser = userRepository.findById(userDTO.getId());
         if (optionalUser.isEmpty())
@@ -43,14 +43,11 @@ public class AppointmentService {
             throw new EntityNotFoundException("Доктор", request.getDoctorId());
         Doctor doctor = optionalDoctor.get();
 
-        Appointment appointment = AppointmentMapper.appointmentRequestToAppointment(request, user, doctor);
-        appointmentRepository.save(appointment);
-
-        AppointmentResponseDTO appointmentResponseDTO = AppointmentMapper.appointmentToAppointmentResponseDTO(appointment);
-        return ResponseEntity.ok(appointmentResponseDTO);
+        Appointment savedAppointment = appointmentRepository.save(AppointmentMapper.appointmentRequestToAppointment(request, user, doctor));
+        return AppointmentMapper.appointmentToAppointmentResponseDTO(savedAppointment);
     }
 
-    public ResponseEntity<?> getBusySlots(Long doctorId, LocalDate date) {
+    public List<String> getBusySlots(Long doctorId, LocalDate date) {
         List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
 
         if (appointments == null || appointments.isEmpty())
@@ -82,10 +79,10 @@ public class AppointmentService {
             }
             busySlots.addAll(pastSlots);
         }
-        return ResponseEntity.ok(busySlots);
+        return busySlots;
     }
 
-    public ResponseEntity<?> getAllByUser(HttpSession session) {
+    public List<AppointmentResponseDTO> getAllByUser(HttpSession session) {
         UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
         Optional<User> optionalUser = userRepository.findById(userDTO.getId());
         if (optionalUser.isEmpty())
@@ -98,26 +95,24 @@ public class AppointmentService {
             AppointmentResponseDTO appointmentResponseDTO = AppointmentMapper.appointmentToAppointmentResponseDTO(appointment);
             appointmentResponseDTOList.add(appointmentResponseDTO);
         }
-        return ResponseEntity.ok(appointmentResponseDTOList);
+        return appointmentResponseDTOList;
     }
 
-    public ResponseEntity<?> deleteAppointment(Long id) {
+    public void deleteAppointment(Long id) {
         Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
         if (optionalAppointment.isEmpty())
             throw new EntityNotFoundException("Запись", id);
         Appointment appointment = optionalAppointment.get();
         appointmentRepository.delete(appointment);
-        return ResponseEntity.ok("Запись удалена!");
     }
 
-    public ResponseEntity<?> cancelAppointment(Long id) {
+    public AppointmentResponseDTO cancelAppointment(Long id) {
         Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
         if (optionalAppointment.isEmpty())
             throw new EntityNotFoundException("Запись", id);
         Appointment appointment = optionalAppointment.get();
         appointment.setStatus(AppointmentStatus.CANCELLED);
-        appointmentRepository.save(appointment);
-        return ResponseEntity.ok("Запись отменена!");
+        return AppointmentMapper.appointmentToAppointmentResponseDTO(appointmentRepository.save(appointment));
     }
 
     public void checkAppointmentStatus(Appointment appointment) {

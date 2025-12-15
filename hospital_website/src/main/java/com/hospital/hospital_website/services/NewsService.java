@@ -15,9 +15,8 @@ import java.util.List;
 public class NewsService {
     private final NewsRepository newsRepository;
 
-    public ResponseEntity<?> getAllNews() {
+    public List<NewsResponseDTO> getAllNews() {
         List<News> newsList = newsRepository.findAll();
-        List<NewsResponseDTO> newsDTOlist = NewsMapper.getDTOnewsList(newsList);
-        return ResponseEntity.ok(newsDTOlist);
+        return NewsMapper.getDTOnewsList(newsList);
     }
 }

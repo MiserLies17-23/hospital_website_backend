@@ -1,6 +1,7 @@
 package com.hospital.hospital_website.services;
 
 import com.hospital.hospital_website.dto.request.NewsRequestDTO;
+import com.hospital.hospital_website.dto.response.NewsResponseDTO;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.models.News;
 import com.hospital.hospital_website.repository.NewsRepository;
@@ -18,13 +19,13 @@ import java.util.Optional;
 public class ModeratorService {
     private final NewsRepository newsRepository;
 
-    public ResponseEntity<?> addNews(NewsRequestDTO newsRequestDTO) {
+    public NewsResponseDTO addNews(NewsRequestDTO newsRequestDTO) {
         News news = NewsMapper.newsRequestDTOtoNews(newsRequestDTO);
-        newsRepository.save(news);
-        return ResponseEntity.ok(NewsMapper.newsToNewsResponseDTO(news));
+        News savedNews = newsRepository.save(news);
+        return NewsMapper.newsToNewsResponseDTO(savedNews);
     }
 
-    public ResponseEntity<?> editNews(Long id, NewsRequestDTO newsRequestDTO) {
+    public NewsResponseDTO editNews(Long id, NewsRequestDTO newsRequestDTO) {
         Optional<News> newsOptional = newsRepository.findById(id);
         if (newsOptional.isEmpty())
             throw new EntityNotFoundException("Новость не найдена!");
@@ -37,16 +38,15 @@ public class ModeratorService {
             news.setContent(newsRequestDTO.getContent());
         if (!Objects.equals(news.getDate().toString(), newsRequestDTO.getDate()))
             news.setDate(LocalDate.parse(newsRequestDTO.getDate()));
-        newsRepository.save(news);
-        return ResponseEntity.ok(NewsMapper.newsToNewsResponseDTO(news));
+        News savedNews = newsRepository.save(news);
+        return NewsMapper.newsToNewsResponseDTO(savedNews);
     }
 
-    public ResponseEntity<?> deleteNews(Long id) {
+    public void deleteNews(Long id) {
         Optional<News> newsOptional = newsRepository.findById(id);
         if (newsOptional.isEmpty())
             throw new EntityNotFoundException("Новость не найдена!");
         News news = newsOptional.get();
         newsRepository.delete(news);
-        return ResponseEntity.ok("Новость успешно удалена!");
     }
 }

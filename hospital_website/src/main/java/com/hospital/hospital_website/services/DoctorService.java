@@ -16,9 +16,8 @@ public class DoctorService {
 
     private final DoctorRepository doctorRepository;
 
-    public ResponseEntity<?> getAllDoctors() {
+    public List<DoctorResponseDTO> getAllDoctors() {
         List <Doctor> doctors = doctorRepository.findAll();
-        List< DoctorResponseDTO > doctorsDTO = DoctorMapper.getDTOdoctorsList(doctors);
-        return ResponseEntity.ok(doctorsDTO);
+        return DoctorMapper.getDTOdoctorsList(doctors);
     }
 }

@@ -3,6 +3,7 @@ package com.hospital.hospital_website.controllers;
 import com.hospital.hospital_website.dto.request.UserCreateDTO;
 import com.hospital.hospital_website.dto.request.UserEditDTO;
 import com.hospital.hospital_website.dto.request.UserLoginDTO;
+import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.services.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
@@ -19,41 +20,49 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody UserCreateDTO userCreateDTO) {
-        return userService.signup(userCreateDTO);
+        UserResponseDTO userResponseDTO = userService.signup(userCreateDTO);
+        return ResponseEntity.ok(userResponseDTO);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDTO userLoginDTO, HttpSession session) {
-        return userService.login(userLoginDTO, session);
+        UserResponseDTO userResponseDTO = userService.login(userLoginDTO, session);
+        return ResponseEntity.ok(userResponseDTO);
     }
 
     @GetMapping("/checklogin")
     public ResponseEntity<?> checklogin(HttpSession session) {
-        return userService.checkLogin(session);
+        UserResponseDTO userResponseDTO = userService.checkLogin(session);
+        return ResponseEntity.ok(userResponseDTO);
     }
 
     @PostMapping("/edit")
     public ResponseEntity<?> edit(@RequestBody UserEditDTO userEditDTO, HttpSession session) {
-        return userService.edit(userEditDTO, session);
+        UserResponseDTO userResponseDTO = userService.edit(userEditDTO, session);
+        return ResponseEntity.ok(userResponseDTO);
     }
 
     @GetMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
-        return userService.logout(session);
+        userService.logout(session);
+        return ResponseEntity.ok("Вы вышли из аккаунта");
     }
 
     @GetMapping("/dashboard")
     public ResponseEntity<?> dashboard(HttpSession session) {
-        return userService.dashboard(session);
+        UserResponseDTO userResponseDTO = userService.dashboard(session);
+        return ResponseEntity.ok(userResponseDTO);
     }
 
     @PostMapping("/avatar")
     public ResponseEntity<?> uploadAvatar(HttpSession session, @RequestParam("file") MultipartFile file) {
-        return userService.uploadAvatar(session, file);
+        String avatarUrl = userService.uploadAvatar(session, file);
+        return ResponseEntity.ok(avatarUrl);
     }
 
     @DeleteMapping("/avatar")
     public ResponseEntity<?> deleteAvatar(HttpSession session) {
-        return userService.deleteAvatar(session);
+        String defaultAvatarUrl = userService.deleteAvatar(session);
+        return ResponseEntity.ok(defaultAvatarUrl);
     }
 }
