@@ -29,13 +29,13 @@ public class ModeratorController {
         return ResponseEntity.ok(newsResponseDTO);
     }
 
-    @PostMapping("/news/{newsId}")
+    @PostMapping("/news/{newsId}/edit")
     public ResponseEntity<?> editNews(@PathVariable Long newsId, @RequestBody NewsRequestDTO newsRequestDTO) {
         NewsResponseDTO newsResponseDTO = moderatorService.editNews(newsId, newsRequestDTO);
         return ResponseEntity.ok(newsResponseDTO);
     }
 
-    @DeleteMapping("/news/{newsId}")
+    @DeleteMapping("/news/{newsId}/delete")
     public ResponseEntity<?> deleteNews(@PathVariable Long newsId) {
         moderatorService.deleteNews(newsId);
         return ResponseEntity.ok("Новость успешно удалена!");
