@@ -12,7 +12,6 @@ import com.hospital.hospital_website.repository.UserRepository;
 import com.hospital.hospital_website.utils.mapper.DoctorMapper;
 import com.hospital.hospital_website.utils.mapper.UserMapper;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -90,6 +89,14 @@ public class AdminService {
             throw new EntityNotFoundException("Пользователь не найден!");
         User user = optionalUser.get();
         userRepository.delete(user);
+    }
+
+    public UserResponseDTO getUserById(Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty())
+            throw new EntityNotFoundException("Пользователь не найден!");
+        User user = optionalUser.get();
+        return UserMapper.userToUserResponseDto(user);
     }
 
 }

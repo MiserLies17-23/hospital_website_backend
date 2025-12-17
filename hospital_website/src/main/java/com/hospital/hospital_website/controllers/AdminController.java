@@ -35,13 +35,13 @@ public class AdminController {
         return ResponseEntity.ok(doctorResponseDTO);
     }
 
-    @PostMapping("/doctors{doctorId}")
+    @PostMapping("/doctors/{doctorId}/edit")
     public ResponseEntity<?> editDoctor(@PathVariable Long doctorId, @RequestBody DoctorRequestDTO doctorRequestDTO) {
         DoctorResponseDTO doctorResponseDTO = adminService.editDoctor(doctorId, doctorRequestDTO);
         return ResponseEntity.ok(doctorResponseDTO);
     }
 
-    @DeleteMapping("/doctors/{doctorId}")
+    @DeleteMapping("/doctors/{doctorId}/delete")
     public ResponseEntity<?> deleteDoctor(@PathVariable Long doctorId) {
         adminService.deleteDoctor(doctorId);
         return ResponseEntity.ok("Доктор успешно удалён!");
@@ -53,7 +53,13 @@ public class AdminController {
         return ResponseEntity.ok(allUsers);
     }
 
-    @PostMapping("/users/{userId}")
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<?> getUserById(@PathVariable Long userId) {
+        UserResponseDTO userResponseDTO = adminService.getUserById(userId);
+        return ResponseEntity.ok(userResponseDTO);
+    }
+
+    @PostMapping("/users/{userId}/edit")
     public ResponseEntity<?> editUser(@PathVariable Long userId, @RequestBody UserEditDTO userEditDTO) {
         UserResponseDTO userResponseDTO = adminService.editUser(userId, userEditDTO);
         return ResponseEntity.ok(userResponseDTO);
@@ -65,7 +71,7 @@ public class AdminController {
         return ResponseEntity.ok(userResponseDTO);
     }
 
-    @DeleteMapping("/user/{userId}")
+    @DeleteMapping("/users/{userId}/delete")
     public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
         adminService.deleteUser(userId);
         return ResponseEntity.ok("Пользователь успешно удалён");
