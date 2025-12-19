@@ -14,9 +14,9 @@ public abstract class DoctorMapper {
 
     public static Doctor doctorCreateDTOToDoctor(DoctorRequestDTO doctorRequestDTO) {
         Doctor doctor = new Doctor();
-        doctor.setName(doctorRequestDTO.getDoctorName());
-        doctor.setSpecialization(doctorRequestDTO.getDoctorSpecialization());
-        doctor.setPhone(doctorRequestDTO.getDoctorPhone());
+        doctor.setName(doctorRequestDTO.getName());
+        doctor.setSpecialization(doctorRequestDTO.getSpecialization());
+        doctor.setPhone(doctorRequestDTO.getPhone());
         return doctor;
     }
 

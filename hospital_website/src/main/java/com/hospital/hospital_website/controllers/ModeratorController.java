@@ -29,6 +29,12 @@ public class ModeratorController {
         return ResponseEntity.ok(newsResponseDTO);
     }
 
+    @GetMapping("/news/{newsId}")
+    public ResponseEntity<?> getNewsById(@PathVariable Long newsId) {
+        NewsResponseDTO newsResponseDTO = moderatorService.getNewsById(newsId);
+        return ResponseEntity.ok(newsResponseDTO);
+    }
+
     @PostMapping("/news/{newsId}/edit")
     public ResponseEntity<?> editNews(@PathVariable Long newsId, @RequestBody NewsRequestDTO newsRequestDTO) {
         NewsResponseDTO newsResponseDTO = moderatorService.editNews(newsId, newsRequestDTO);

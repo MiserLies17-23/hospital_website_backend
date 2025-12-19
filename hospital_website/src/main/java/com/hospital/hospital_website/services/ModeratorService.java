@@ -48,4 +48,11 @@ public class ModeratorService {
         News news = newsOptional.get();
         newsRepository.delete(news);
     }
+
+    public NewsResponseDTO getNewsById(Long newsId) {
+        Optional<News> optionalNews = newsRepository.findById(newsId);
+        if (optionalNews.isEmpty())
+            throw new EntityNotFoundException("Новость не найдена");
+        return NewsMapper.newsToNewsResponseDTO(optionalNews.get());
+    }
 }

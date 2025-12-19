@@ -11,9 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DoctorRequestDTO {
 
-    private String doctorName;
+    private String name;
 
-    private String doctorSpecialization;
+    private String specialization;
 
-    private String doctorPhone;
+    private String phone;
 }

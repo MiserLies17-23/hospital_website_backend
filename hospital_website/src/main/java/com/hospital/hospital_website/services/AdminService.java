@@ -31,6 +31,14 @@ public class AdminService {
         return DoctorMapper.doctorToDoctorResponseDTO(savedDoctor);
     }
 
+    public DoctorResponseDTO getDoctorById(Long doctorId) {
+        Optional<Doctor> optionalDoctor = doctorRepository.findById(doctorId);
+        if (optionalDoctor.isEmpty())
+            throw new EntityNotFoundException("Доктор не найден!");
+        Doctor doctor = optionalDoctor.get();
+        return DoctorMapper.doctorToDoctorResponseDTO(doctor);
+    }
+
     public DoctorResponseDTO editDoctor(Long doctorId, DoctorRequestDTO doctorRequestDTO) {
         Optional<Doctor> optionalDoctor = doctorRepository.findById(doctorId);
         if (optionalDoctor.isEmpty())
@@ -38,12 +46,12 @@ public class AdminService {
         Doctor doctor = optionalDoctor.get();
         if (!Objects.equals(doctorId, doctor.getId()))
             throw new EntityNotFoundException("Ошибка поиска доктора...");
-        if(!doctor.getName().equals(doctorRequestDTO.getDoctorName()))
-            doctor.setName(doctorRequestDTO.getDoctorName());
-        if(!doctor.getSpecialization().equals(doctorRequestDTO.getDoctorSpecialization()))
-            doctor.setSpecialization(doctorRequestDTO.getDoctorSpecialization());
-        if(!doctor.getPhone().equals(doctorRequestDTO.getDoctorPhone()))
-            doctor.setPhone(doctorRequestDTO.getDoctorPhone());
+        if(!doctor.getName().equals(doctorRequestDTO.getName()))
+            doctor.setName(doctorRequestDTO.getName());
+        if(!doctor.getSpecialization().equals(doctorRequestDTO.getSpecialization()))
+            doctor.setSpecialization(doctorRequestDTO.getSpecialization());
+        if(!doctor.getPhone().equals(doctorRequestDTO.getPhone()))
+            doctor.setPhone(doctorRequestDTO.getPhone());
         Doctor updatedDoctor = doctorRepository.save(doctor);
         return DoctorMapper.doctorToDoctorResponseDTO(updatedDoctor);
     }

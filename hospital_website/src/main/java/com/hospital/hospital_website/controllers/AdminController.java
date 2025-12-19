@@ -8,6 +8,7 @@ import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.services.AdminService;
 import com.hospital.hospital_website.services.DoctorService;
 
+import com.hospital.hospital_website.services.ModeratorService;
 import com.hospital.hospital_website.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,12 @@ public class AdminController {
     public ResponseEntity<?> getAllDoctors() {
         List<DoctorResponseDTO> allDoctors = doctorService.getAllDoctors();
         return ResponseEntity.ok(allDoctors);
+    }
+
+    @GetMapping("/doctors/{doctorId}")
+    public ResponseEntity<?> getDoctorById(@PathVariable Long doctorId) {
+        DoctorResponseDTO doctorResponseDTO = adminService.getDoctorById(doctorId);
+        return ResponseEntity.ok(doctorResponseDTO);
     }
 
     @PostMapping("/doctors/add")
