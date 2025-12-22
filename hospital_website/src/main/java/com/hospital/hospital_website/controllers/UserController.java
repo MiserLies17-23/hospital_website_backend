@@ -31,14 +31,14 @@ public class UserController {
     }
 
     @GetMapping("/checklogin")
-    public ResponseEntity<?> checklogin(HttpSession session) {
-        UserResponseDTO userResponseDTO = userService.checkLogin(session);
+    public ResponseEntity<?> checklogin() {
+        UserResponseDTO userResponseDTO = userService.checkLogin();
         return ResponseEntity.ok(userResponseDTO);
     }
 
     @PostMapping("/edit")
-    public ResponseEntity<?> edit(@RequestBody UserEditDTO userEditDTO, HttpSession session) {
-        UserResponseDTO userResponseDTO = userService.edit(userEditDTO, session);
+    public ResponseEntity<?> edit(@RequestBody UserEditDTO userEditDTO) {
+        UserResponseDTO userResponseDTO = userService.edit(userEditDTO);
         return ResponseEntity.ok(userResponseDTO);
     }
 
@@ -49,20 +49,20 @@ public class UserController {
     }
 
     @GetMapping("/dashboard")
-    public ResponseEntity<?> dashboard(HttpSession session) {
-        UserResponseDTO userResponseDTO = userService.dashboard(session);
+    public ResponseEntity<?> dashboard() {
+        UserResponseDTO userResponseDTO = userService.dashboard();
         return ResponseEntity.ok(userResponseDTO);
     }
 
     @PostMapping("/avatar")
-    public ResponseEntity<?> uploadAvatar(HttpSession session, @RequestParam("file") MultipartFile file) {
-        String avatarUrl = userService.uploadAvatar(session, file);
+    public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file) {
+        String avatarUrl = userService.uploadAvatar(file);
         return ResponseEntity.ok(avatarUrl);
     }
 
     @DeleteMapping("/avatar")
-    public ResponseEntity<?> deleteAvatar(HttpSession session) {
-        String defaultAvatarUrl = userService.deleteAvatar(session);
+    public ResponseEntity<?> deleteAvatar() {
+        String defaultAvatarUrl = userService.deleteAvatar();
         return ResponseEntity.ok(defaultAvatarUrl);
     }
 }

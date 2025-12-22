@@ -20,8 +20,8 @@ public class AppointmentController {
     private AppointmentService appointmentService;
 
     @PostMapping("/add")
-    public ResponseEntity<?> addAppointment(@RequestBody AppointmentRequestDTO request, HttpSession session) {
-        AppointmentResponseDTO appointmentResponseDTO = appointmentService.addAppointment(request, session);
+    public ResponseEntity<?> addAppointment(@RequestBody AppointmentRequestDTO request) {
+        AppointmentResponseDTO appointmentResponseDTO = appointmentService.addAppointment(request);
         return ResponseEntity.ok(appointmentResponseDTO);
     }
 
@@ -33,8 +33,8 @@ public class AppointmentController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<?> getAppointments(HttpSession session) {
-        List<AppointmentResponseDTO> appointmentResponseDTOS = appointmentService.getAllByUser(session);
+    public ResponseEntity<?> getAppointments() {
+        List<AppointmentResponseDTO> appointmentResponseDTOS = appointmentService.getAllByUser();
         return ResponseEntity.ok(appointmentResponseDTOS);
     }
 

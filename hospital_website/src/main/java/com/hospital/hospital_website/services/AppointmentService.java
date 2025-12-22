@@ -14,6 +14,8 @@ import com.hospital.hospital_website.repository.DoctorRepository;
 import com.hospital.hospital_website.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,17 +33,18 @@ public class AppointmentService {
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
 
-    public AppointmentResponseDTO addAppointment(AppointmentRequestDTO request, HttpSession session) {
-        UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
-        Optional<User> optionalUser = userRepository.findById(userDTO.getId());
-        if (optionalUser.isEmpty())
-            throw new EntityNotFoundException("Пользователь", userDTO.getId());
-        User user = optionalUser.get();
-        Optional<Doctor> optionalDoctor = doctorRepository.findById(request.getDoctorId());
-        if (optionalDoctor.isEmpty())
-            throw new EntityNotFoundException("Доктор", request.getDoctorId());
-        Doctor doctor = optionalDoctor.get();
+    public AppointmentResponseDTO addAppointment(AppointmentRequestDTO request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new EntityNotFoundException("Пользователь не аутентифицирован!");
+        }
+
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
+        Doctor doctor = doctorRepository.findById(request.getDoctorId())
+                .orElseThrow(() -> new EntityNotFoundException("Доктор не найден!"));
         Appointment savedAppointment = appointmentRepository.save(AppointmentMapper.appointmentRequestToAppointment(request, user, doctor));
         return AppointmentMapper.appointmentToAppointmentResponseDTO(savedAppointment);
     }
@@ -81,12 +84,14 @@ public class AppointmentService {
         return busySlots;
     }
 
-    public List<AppointmentResponseDTO> getAllByUser(HttpSession session) {
-        UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
-        Optional<User> optionalUser = userRepository.findById(userDTO.getId());
-        if (optionalUser.isEmpty())
-            throw new EntityNotFoundException("Пользователь", userDTO.getId());
-        User user = optionalUser.get();
+    public List<AppointmentResponseDTO> getAllByUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new EntityNotFoundException("Пользователь не аутентифицирован!");
+        }
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
         List<Appointment> appointments = appointmentRepository.findByUserId(user.getId());
         List<AppointmentResponseDTO> appointmentResponseDTOList = new ArrayList<>();
         for (Appointment appointment : appointments) {

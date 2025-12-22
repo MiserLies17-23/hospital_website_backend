@@ -11,13 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/doctor")
 @AllArgsConstructor
 public class DoctorController {
 
     private final DoctorService doctorService;
 
-    @GetMapping("/")
+    @GetMapping("/doctors")
     public ResponseEntity<?> getAllDoctors() {
         List<DoctorResponseDTO> allDoctors = doctorService.getAllDoctors();
         return ResponseEntity.ok(allDoctors);
