@@ -21,6 +21,10 @@ public class News {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "username", nullable = false)
+    private User user;
+
     @Column(nullable = false)
     private String title;
 

@@ -4,8 +4,10 @@ import com.hospital.hospital_website.dto.request.NewsRequestDTO;
 import com.hospital.hospital_website.dto.response.NewsResponseDTO;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.models.News;
+import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.NewsRepository;
 import com.hospital.hospital_website.utils.mapper.NewsMapper;
+import com.hospital.hospital_website.utils.security.UtilsSecurity;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +19,11 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ModeratorService {
     private final NewsRepository newsRepository;
+    private final UtilsSecurity utilsSecurity;
 
     public NewsResponseDTO addNews(NewsRequestDTO newsRequestDTO) {
-        News news = NewsMapper.newsRequestDTOtoNews(newsRequestDTO);
+        User user = utilsSecurity.getCurrentUser();
+        News news = NewsMapper.newsRequestDTOtoNews(newsRequestDTO, user);
         News savedNews = newsRepository.save(news);
         return NewsMapper.newsToNewsResponseDTO(savedNews);
     }
