@@ -2,7 +2,6 @@ package com.hospital.hospital_website.services;
 
 import com.hospital.hospital_website.dto.request.AppointmentRequestDTO;
 import com.hospital.hospital_website.dto.response.AppointmentResponseDTO;
-import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.models.enums.AppointmentStatus;
 import com.hospital.hospital_website.utils.mapper.AppointmentMapper;
@@ -12,7 +11,7 @@ import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.AppointmentRepository;
 import com.hospital.hospital_website.repository.DoctorRepository;
 import com.hospital.hospital_website.repository.UserRepository;
-import jakarta.servlet.http.HttpSession;
+import com.hospital.hospital_website.utils.security.UtilsSecurity;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,17 +31,10 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
+    private final UtilsSecurity utilsSecurity;
 
     public AppointmentResponseDTO addAppointment(AppointmentRequestDTO request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new EntityNotFoundException("Пользователь не аутентифицирован!");
-        }
-
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
+        User user = utilsSecurity.getCurrentUser();
         Doctor doctor = doctorRepository.findById(request.getDoctorId())
                 .orElseThrow(() -> new EntityNotFoundException("Доктор не найден!"));
         Appointment savedAppointment = appointmentRepository.save(AppointmentMapper.appointmentRequestToAppointment(request, user, doctor));

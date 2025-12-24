@@ -9,6 +9,7 @@ import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.utils.mapper.UserMapper;
 import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.UserRepository;
+import com.hospital.hospital_website.utils.security.UtilsSecurity;
 import com.hospital.hospital_website.utils.validation.Validator;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final UtilsSecurity utilsSecurity;
 
     public UserResponseDTO signup(UserCreateDTO userCreateDTO) {
 
@@ -69,7 +71,7 @@ public class UserService {
     }
 
     public UserResponseDTO checkLogin() {
-        User user = getUserFromSession();
+        User user = utilsSecurity.getCurrentUser();
         return UserMapper.userToUserResponseDto(user);
     }
 
@@ -81,14 +83,14 @@ public class UserService {
 
     public UserResponseDTO dashboard(HttpSession session) {
         if (session.getAttribute("SPRING_SECURITY_CONTEXT") != null) {
-            User user = getUserFromSession();
+            User user = utilsSecurity.getCurrentUser();
             return UserMapper.userToUserResponseDto(user);
         }
         throw new EntityNotFoundException("Пользователь не найден!");
     }
 
     public String uploadAvatar(MultipartFile file) {
-        User user = getUserFromSession();
+        User user = utilsSecurity.getCurrentUser();
         String avatarUrl = UserMapper.avatarProcessing(file, user.getUsername());
         user.setAvatar(avatarUrl);
         userRepository.save(user);
@@ -97,7 +99,7 @@ public class UserService {
     }
 
     public String deleteAvatar() {
-        User user = getUserFromSession();
+        User user = utilsSecurity.getCurrentUser();
         UserMapper.deleteAvatar(user.getAvatar()); // удаляем старый аватар
         String defaultAvatarUrl = UserMapper.avatarProcessing(null, user.getUsername()); // загружаем дефолтный
         user.setAvatar(defaultAvatarUrl); // сохраняем дефолтный аватар для пользователя
@@ -107,7 +109,7 @@ public class UserService {
     }
 
     public UserResponseDTO edit(UserEditDTO userEditDTO) {
-        User user = getUserFromSession();
+        User user = utilsSecurity.getCurrentUser();
         if (!(Objects.equals(user.getId(), userEditDTO.getId())))
             throw new EntityNotFoundException("Ошибка поиска пользователя");
         if(!user.getUsername().equals(userEditDTO.getUsername())) {
@@ -132,14 +134,14 @@ public class UserService {
         Validator.passwordValidate(userCreateDTO.getPassword());
     }
 
-    public User getUserFromSession() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated())
-            throw new EntityNotFoundException("Пользователь не найден!");
-
-        String username = authentication.getName();
-
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Ошибка поиска пользователя..."));
-    }
+//    public User getUserFromSession() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication == null || !authentication.isAuthenticated())
+//            throw new EntityNotFoundException("Пользователь не найден!");
+//
+//        String username = authentication.getName();
+//
+//        return userRepository.findByUsername(username)
+//                .orElseThrow(() -> new EntityNotFoundException("Ошибка поиска пользователя..."));
+//    }
 }
