@@ -1,8 +1,9 @@
 package com.hospital.hospital_website.controllers;
 
+import com.hospital.hospital_website.dto.request.AdminUserEditDTO;
 import com.hospital.hospital_website.dto.request.DoctorRequestDTO;
 import com.hospital.hospital_website.dto.request.UserCreateDTO;
-import com.hospital.hospital_website.dto.request.UserEditDTO;
+import com.hospital.hospital_website.dto.response.AdminUserResponseDTO;
 import com.hospital.hospital_website.dto.response.DoctorResponseDTO;
 import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.services.AdminService;
@@ -69,13 +70,13 @@ public class AdminController {
     @GetMapping("/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getUserById(@PathVariable Long userId) {
-        UserResponseDTO userResponseDTO = adminService.getUserById(userId);
+        AdminUserResponseDTO userResponseDTO = adminService.getUserById(userId);
         return ResponseEntity.ok(userResponseDTO);
     }
 
     @PostMapping("/users/{userId}/edit")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> editUser(@PathVariable Long userId, @RequestBody UserEditDTO userEditDTO) {
+    public ResponseEntity<?> editUser(@PathVariable Long userId, @RequestBody AdminUserEditDTO userEditDTO) {
         UserResponseDTO userResponseDTO = adminService.editUser(userId, userEditDTO);
         return ResponseEntity.ok(userResponseDTO);
     }

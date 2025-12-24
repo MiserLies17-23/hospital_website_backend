@@ -1,17 +1,23 @@
 package com.hospital.hospital_website.services;
 
+import com.hospital.hospital_website.dto.request.AdminUserEditDTO;
 import com.hospital.hospital_website.dto.request.DoctorRequestDTO;
-import com.hospital.hospital_website.dto.request.UserEditDTO;
+import com.hospital.hospital_website.dto.response.AdminUserResponseDTO;
 import com.hospital.hospital_website.dto.response.DoctorResponseDTO;
 import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
+import com.hospital.hospital_website.exception.ValidateException;
 import com.hospital.hospital_website.models.Doctor;
 import com.hospital.hospital_website.models.User;
+import com.hospital.hospital_website.models.enums.UserRole;
 import com.hospital.hospital_website.repository.DoctorRepository;
 import com.hospital.hospital_website.repository.UserRepository;
 import com.hospital.hospital_website.utils.mapper.DoctorMapper;
 import com.hospital.hospital_website.utils.mapper.UserMapper;
+import com.hospital.hospital_website.utils.validation.Validator;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.EnumUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,6 +30,7 @@ import java.util.Optional;
 public class AdminService {
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DoctorResponseDTO addNewDoctor(DoctorRequestDTO doctorRequestDTO) {
         Doctor doctor = DoctorMapper.doctorCreateDTOToDoctor(doctorRequestDTO);
@@ -76,17 +83,26 @@ public class AdminService {
         return userResponseDTOS;
     }
 
-    public UserResponseDTO editUser(Long id, UserEditDTO userEditDTO) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isEmpty())
-            throw new EntityNotFoundException("Пользователь не найден!");
-        User user = optionalUser.get();
+    public UserResponseDTO editUser(Long id, AdminUserEditDTO userEditDTO) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
         if (!Objects.equals(id, user.getId()))
             throw new EntityNotFoundException("Ошибка поиска пользователя...");
-        if(!user.getUsername().equals(userEditDTO.getUsername()))
+        if (!user.getUsername().equals(userEditDTO.getUsername())) {
+            Validator.usernameValidate(userEditDTO.getUsername());
             user.setUsername(userEditDTO.getUsername());
-        if(!user.getEmail().equals(userEditDTO.getEmail()))
+        }
+        if (!Objects.equals(user.getPassword(), userEditDTO.getPassword())) {
+            Validator.passwordValidate(userEditDTO.getPassword());
+            user.setPassword(passwordEncoder.encode(userEditDTO.getPassword()));
+        }
+        if(!user.getEmail().equals(userEditDTO.getEmail())) {
+            Validator.emailValidate(userEditDTO.getEmail());
             user.setEmail(userEditDTO.getEmail());
+        }
+        if (!EnumUtils.isValidEnum(UserRole.class, userEditDTO.getRole()))
+            throw new ValidateException("Такой роли не существует!");
+        user.setRole(UserRole.valueOf(userEditDTO.getRole()));
         User updatedUser = userRepository.save(user);
         return UserMapper.userToUserResponseDto(updatedUser);
     }
@@ -99,12 +115,9 @@ public class AdminService {
         userRepository.delete(user);
     }
 
-    public UserResponseDTO getUserById(Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty())
-            throw new EntityNotFoundException("Пользователь не найден!");
-        User user = optionalUser.get();
-        return UserMapper.userToUserResponseDto(user);
+    public AdminUserResponseDTO getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
+        return UserMapper.userToAdminUserResponseDto(user);
     }
-
 }
