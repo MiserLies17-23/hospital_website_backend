@@ -49,8 +49,8 @@ public class UserController {
     }
 
     @GetMapping("/dashboard")
-    public ResponseEntity<?> dashboard() {
-        UserResponseDTO userResponseDTO = userService.dashboard();
+    public ResponseEntity<?> dashboard(HttpSession session) {
+        UserResponseDTO userResponseDTO = userService.dashboard(session);
         return ResponseEntity.ok(userResponseDTO);
     }
 

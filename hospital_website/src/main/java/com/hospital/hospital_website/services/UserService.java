@@ -44,6 +44,7 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(userCreateDTO.getPassword());
         user.setPassword(encodedPassword);
+        user.setAvatar(UserMapper.avatarProcessing(null, user.getUsername()));
 
         User savedUser = userRepository.save(user);
         return UserMapper.userToUserResponseDto(savedUser);
@@ -78,11 +79,12 @@ public class UserService {
             session.invalidate();
     }
 
-    public UserResponseDTO dashboard() {
-        User user = getUserFromSession();
-        UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
-        userRepository.save(user);
-        return updatedUser;
+    public UserResponseDTO dashboard(HttpSession session) {
+        if (session.getAttribute("SPRING_SECURITY_CONTEXT") != null) {
+            User user = getUserFromSession();
+            return UserMapper.userToUserResponseDto(user);
+        }
+        throw new EntityNotFoundException("Пользователь не найден!");
     }
 
     public String uploadAvatar(MultipartFile file) {
@@ -108,13 +110,20 @@ public class UserService {
         User user = getUserFromSession();
         if (!(Objects.equals(user.getId(), userEditDTO.getId())))
             throw new EntityNotFoundException("Ошибка поиска пользователя");
-        if(!user.getUsername().equals(userEditDTO.getUsername()))
+        if(!user.getUsername().equals(userEditDTO.getUsername())) {
+            Validator.usernameValidate(userEditDTO.getUsername());
             user.setUsername(userEditDTO.getUsername());
-        if(!user.getEmail().equals(userEditDTO.getEmail()))
+        }
+        if (!Objects.equals(user.getPassword(), userEditDTO.getPassword())) {
+            Validator.passwordValidate(userEditDTO.getPassword());
+            user.setPassword(passwordEncoder.encode(userEditDTO.getPassword()));
+        }
+        if(!user.getEmail().equals(userEditDTO.getEmail())) {
+            Validator.emailValidate(userEditDTO.getEmail());
             user.setEmail(userEditDTO.getEmail());
-
-        User savedUser = userRepository.save(user);
-        return UserMapper.userToUserResponseDto(savedUser);
+        }
+        userRepository.save(user);
+        return UserMapper.userToUserResponseDto(user);
     }
 
     public void userParamsValidate(UserCreateDTO userCreateDTO) {

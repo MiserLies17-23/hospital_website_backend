@@ -1,6 +1,7 @@
 package com.hospital.hospital_website.utils.mapper;
 
 import com.hospital.hospital_website.dto.request.UserCreateDTO;
+import com.hospital.hospital_website.dto.response.AdminUserResponseDTO;
 import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.models.enums.UserRole;
@@ -102,6 +103,17 @@ public abstract class UserMapper {
         } catch (IOException e) {
             e.getMessage();
         }
+    }
+    public static AdminUserResponseDTO userToAdminUserResponseDto(User user) {
+        if (user == null)
+            return null;
+        return new AdminUserResponseDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getPassword(),
+                user.getEmail(),
+                user.getRole().toString()
+        );
     }
 
 }
