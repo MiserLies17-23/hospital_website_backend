@@ -16,7 +16,7 @@ public class NewsMapper {
         News news = new News();
         news.setTitle(newsRequestDTO.getTitle());
         news.setContent(newsRequestDTO.getContent());
-        news.setDate(LocalDate.parse(newsRequestDTO.getDate()));
+        news.setDate(LocalDate.now());
         return news;
     }
 
@@ -26,7 +26,7 @@ public class NewsMapper {
         return new NewsResponseDTO(
                 news.getId(),
                 news.getTitle(),
-                news.getTitle(),
+                news.getContent(),
                 news.getDate().toString()
         );
     }

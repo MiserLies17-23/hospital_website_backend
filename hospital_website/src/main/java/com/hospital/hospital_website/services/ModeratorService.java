@@ -25,27 +25,22 @@ public class ModeratorService {
     }
 
     public NewsResponseDTO editNews(Long id, NewsRequestDTO newsRequestDTO) {
-        Optional<News> newsOptional = newsRepository.findById(id);
-        if (newsOptional.isEmpty())
-            throw new EntityNotFoundException("Новость не найдена!");
-        News news = newsOptional.get();
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Новость не найдена!"));
         if (!Objects.equals(id, news.getId()))
             throw new EntityNotFoundException("Ошибка поиска новости...");
         if (!Objects.equals(news.getTitle(), newsRequestDTO.getTitle()))
             news.setTitle(newsRequestDTO.getTitle());
         if (!Objects.equals(news.getContent(), newsRequestDTO.getContent()))
             news.setContent(newsRequestDTO.getContent());
-        if (!Objects.equals(news.getDate().toString(), newsRequestDTO.getDate()))
-            news.setDate(LocalDate.parse(newsRequestDTO.getDate()));
+        news.setDate(LocalDate.now());
         News savedNews = newsRepository.save(news);
         return NewsMapper.newsToNewsResponseDTO(savedNews);
     }
 
     public void deleteNews(Long id) {
-        Optional<News> newsOptional = newsRepository.findById(id);
-        if (newsOptional.isEmpty())
-            throw new EntityNotFoundException("Новость не найдена!");
-        News news = newsOptional.get();
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Новость не найдена!"));
         newsRepository.delete(news);
     }
 
