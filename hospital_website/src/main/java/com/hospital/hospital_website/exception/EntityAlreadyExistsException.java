@@ -1,9 +1,7 @@
 package com.hospital.hospital_website.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.CONFLICT)
 public class EntityAlreadyExistsException extends AppException {
 
     public EntityAlreadyExistsException(String entityName, String field, String value) {

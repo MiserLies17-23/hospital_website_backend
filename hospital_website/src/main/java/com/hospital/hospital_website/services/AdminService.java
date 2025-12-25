@@ -10,11 +10,14 @@ import com.hospital.hospital_website.exception.ValidateException;
 import com.hospital.hospital_website.models.Doctor;
 import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.models.enums.UserRole;
+import com.hospital.hospital_website.repository.AppointmentRepository;
 import com.hospital.hospital_website.repository.DoctorRepository;
 import com.hospital.hospital_website.repository.UserRepository;
 import com.hospital.hospital_website.utils.mapper.DoctorMapper;
 import com.hospital.hospital_website.utils.mapper.UserMapper;
-import com.hospital.hospital_website.utils.validation.Validator;
+import com.hospital.hospital_website.utils.validation.DoctorParamsValidator;
+import com.hospital.hospital_website.utils.validation.UserParamsValidator;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,12 +30,15 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class AdminService {
     private final UserRepository userRepository;
+    private final AppointmentRepository appointmentRepository;
     private final DoctorRepository doctorRepository;
     private final PasswordEncoder passwordEncoder;
 
     public DoctorResponseDTO addNewDoctor(DoctorRequestDTO doctorRequestDTO) {
+        DoctorParamsValidator.doctorParamValidate(doctorRequestDTO);
         Doctor doctor = DoctorMapper.doctorCreateDTOToDoctor(doctorRequestDTO);
         Doctor savedDoctor = doctorRepository.save(doctor);
         return DoctorMapper.doctorToDoctorResponseDTO(savedDoctor);
@@ -64,10 +70,9 @@ public class AdminService {
     }
 
     public void deleteDoctor(Long id) {
-        Optional<Doctor> optionalDoctor = doctorRepository.findById(id);
-        if (optionalDoctor.isEmpty())
-            throw new EntityNotFoundException("Доктор не найден!");
-        Doctor doctor = optionalDoctor.get();
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Доктор не найден!"));
+        appointmentRepository.deleteByDoctorId(id);
         doctorRepository.delete(doctor);
     }
 
@@ -89,15 +94,15 @@ public class AdminService {
         if (!Objects.equals(id, user.getId()))
             throw new EntityNotFoundException("Ошибка поиска пользователя...");
         if (!user.getUsername().equals(userEditDTO.getUsername())) {
-            Validator.usernameValidate(userEditDTO.getUsername());
+            UserParamsValidator.usernameValidate(userEditDTO.getUsername());
             user.setUsername(userEditDTO.getUsername());
         }
         if (!Objects.equals(user.getPassword(), userEditDTO.getPassword())) {
-            Validator.passwordValidate(userEditDTO.getPassword());
+            UserParamsValidator.passwordValidate(userEditDTO.getPassword());
             user.setPassword(passwordEncoder.encode(userEditDTO.getPassword()));
         }
         if(!user.getEmail().equals(userEditDTO.getEmail())) {
-            Validator.emailValidate(userEditDTO.getEmail());
+            UserParamsValidator.emailValidate(userEditDTO.getEmail());
             user.setEmail(userEditDTO.getEmail());
         }
         if (!EnumUtils.isValidEnum(UserRole.class, userEditDTO.getRole()))
@@ -107,11 +112,11 @@ public class AdminService {
         return UserMapper.userToUserResponseDto(updatedUser);
     }
 
+
     public void deleteUser(Long id) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isEmpty())
-            throw new EntityNotFoundException("Пользователь не найден!");
-        User user = optionalUser.get();
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
+        appointmentRepository.deleteByUserId(id);
         userRepository.delete(user);
     }
 

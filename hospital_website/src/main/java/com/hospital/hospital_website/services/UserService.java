@@ -10,7 +10,7 @@ import com.hospital.hospital_website.utils.mapper.UserMapper;
 import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.UserRepository;
 import com.hospital.hospital_website.utils.security.UtilsSecurity;
-import com.hospital.hospital_website.utils.validation.Validator;
+import com.hospital.hospital_website.utils.validation.UserParamsValidator;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,7 +34,7 @@ public class UserService {
 
     public UserResponseDTO signup(UserCreateDTO userCreateDTO) {
 
-        userParamsValidate(userCreateDTO);
+        UserParamsValidator.userParamsValidate(userCreateDTO);
 
         if (userRepository.findByUsername(userCreateDTO.getUsername()).isPresent())
             throw new EntityAlreadyExistsException("Пользователь с таким именем уже существует!");
@@ -113,35 +113,20 @@ public class UserService {
         if (!(Objects.equals(user.getId(), userEditDTO.getId())))
             throw new EntityNotFoundException("Ошибка поиска пользователя");
         if(!user.getUsername().equals(userEditDTO.getUsername())) {
-            Validator.usernameValidate(userEditDTO.getUsername());
+            UserParamsValidator.usernameValidate(userEditDTO.getUsername());
             user.setUsername(userEditDTO.getUsername());
         }
         if (!Objects.equals(user.getPassword(), userEditDTO.getPassword())) {
-            Validator.passwordValidate(userEditDTO.getPassword());
+            UserParamsValidator.passwordValidate(userEditDTO.getPassword());
             user.setPassword(passwordEncoder.encode(userEditDTO.getPassword()));
         }
         if(!user.getEmail().equals(userEditDTO.getEmail())) {
-            Validator.emailValidate(userEditDTO.getEmail());
+            UserParamsValidator.emailValidate(userEditDTO.getEmail());
             user.setEmail(userEditDTO.getEmail());
         }
         userRepository.save(user);
         return UserMapper.userToUserResponseDto(user);
     }
 
-    public void userParamsValidate(UserCreateDTO userCreateDTO) {
-        Validator.usernameValidate(userCreateDTO.getUsername());
-        Validator.emailValidate(userCreateDTO.getEmail());
-        Validator.passwordValidate(userCreateDTO.getPassword());
-    }
 
-//    public User getUserFromSession() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        if (authentication == null || !authentication.isAuthenticated())
-//            throw new EntityNotFoundException("Пользователь не найден!");
-//
-//        String username = authentication.getName();
-//
-//        return userRepository.findByUsername(username)
-//                .orElseThrow(() -> new EntityNotFoundException("Ошибка поиска пользователя..."));
-//    }
 }

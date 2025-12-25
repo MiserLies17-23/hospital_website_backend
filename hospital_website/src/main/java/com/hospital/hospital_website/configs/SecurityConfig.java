@@ -1,5 +1,6 @@
 package com.hospital.hospital_website.configs;
 
+
 import com.hospital.hospital_website.services.UserDetailsServiceImp;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -40,6 +41,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/moderator/**").hasRole("MODERATOR")
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> {})
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
