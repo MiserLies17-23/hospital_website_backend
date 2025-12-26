@@ -1,8 +1,9 @@
 package com.hospital.hospital_website.utils.validation;
 
+import com.hospital.hospital_website.dto.request.UserCreateDTO;
 import com.hospital.hospital_website.exception.ValidateException;
 
-public abstract class Validator {
+public abstract class UserParamsValidator {
 
     private static final String EMAIL_REGEX = "[a-zA-Z_]+\\w*@[a-zA-Z]+.[a-zA-Z]+";
     private static final String USERNAME_REGEX = "[a-zA-Z_]+\\w{5,}";
@@ -26,4 +27,9 @@ public abstract class Validator {
             throw new ValidateException("Пароль не может быть короче 6 символов!");
     }
 
+    public static void userParamsValidate(UserCreateDTO userCreateDTO) {
+        UserParamsValidator.usernameValidate(userCreateDTO.getUsername());
+        UserParamsValidator.emailValidate(userCreateDTO.getEmail());
+        UserParamsValidator.passwordValidate(userCreateDTO.getPassword());
+    }
 }

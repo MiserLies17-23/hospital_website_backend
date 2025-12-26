@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserEditDTO {
+public class AdminUserEditDTO {
 
     private Long id;
 
@@ -14,4 +14,6 @@ public class UserEditDTO {
     private String password;
 
     private String email;
+
+    private String role;
 }

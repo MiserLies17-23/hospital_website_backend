@@ -4,8 +4,10 @@ import com.hospital.hospital_website.dto.request.NewsRequestDTO;
 import com.hospital.hospital_website.dto.response.NewsResponseDTO;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.models.News;
+import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.NewsRepository;
 import com.hospital.hospital_website.utils.mapper.NewsMapper;
+import com.hospital.hospital_website.utils.security.UtilsSecurity;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,35 +19,32 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ModeratorService {
     private final NewsRepository newsRepository;
+    private final UtilsSecurity utilsSecurity;
 
     public NewsResponseDTO addNews(NewsRequestDTO newsRequestDTO) {
-        News news = NewsMapper.newsRequestDTOtoNews(newsRequestDTO);
+        User user = utilsSecurity.getCurrentUser();
+        News news = NewsMapper.newsRequestDTOtoNews(newsRequestDTO, user);
         News savedNews = newsRepository.save(news);
         return NewsMapper.newsToNewsResponseDTO(savedNews);
     }
 
     public NewsResponseDTO editNews(Long id, NewsRequestDTO newsRequestDTO) {
-        Optional<News> newsOptional = newsRepository.findById(id);
-        if (newsOptional.isEmpty())
-            throw new EntityNotFoundException("Новость не найдена!");
-        News news = newsOptional.get();
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Новость не найдена!"));
         if (!Objects.equals(id, news.getId()))
             throw new EntityNotFoundException("Ошибка поиска новости...");
         if (!Objects.equals(news.getTitle(), newsRequestDTO.getTitle()))
             news.setTitle(newsRequestDTO.getTitle());
         if (!Objects.equals(news.getContent(), newsRequestDTO.getContent()))
             news.setContent(newsRequestDTO.getContent());
-        if (!Objects.equals(news.getDate().toString(), newsRequestDTO.getDate()))
-            news.setDate(LocalDate.parse(newsRequestDTO.getDate()));
+        news.setDate(LocalDate.now());
         News savedNews = newsRepository.save(news);
         return NewsMapper.newsToNewsResponseDTO(savedNews);
     }
 
     public void deleteNews(Long id) {
-        Optional<News> newsOptional = newsRepository.findById(id);
-        if (newsOptional.isEmpty())
-            throw new EntityNotFoundException("Новость не найдена!");
-        News news = newsOptional.get();
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Новость не найдена!"));
         newsRepository.delete(news);
     }
 

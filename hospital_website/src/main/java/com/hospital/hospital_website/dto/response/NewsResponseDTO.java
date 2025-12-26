@@ -13,6 +13,8 @@ public class NewsResponseDTO {
 
     private long id;
 
+    private String author;
+
     private String title;
 
     private String content;
