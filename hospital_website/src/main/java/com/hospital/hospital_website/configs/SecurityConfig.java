@@ -54,6 +54,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/user/login", "/user/signup", "/news", "/time",
                                 "/hospitalImages/**", "/userImages/**", "/doctors").permitAll()
+                        .requestMatchers("/user/avatar", "/user/edit").authenticated() // Добавьте это
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/moderator/**").hasRole("MODERATOR")
                         .anyRequest().authenticated()
@@ -139,12 +140,12 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/hospitalImages/**")
-                .addResourceLocations("file:C:/users/THUNDEROBOT/ideaProjects/hospital_website/hospital_website/src/main/resources/static/images/hospitalImages/")
+                .addResourceLocations("file:C:/Users/ursus69/IdeaProjects/hospital_website_backend/hospital_website/src/main/resources/static/images/hospitalImages/")
                 .setCachePeriod(0)
                 .setCacheControl(CacheControl.noStore().mustRevalidate());
 
         registry.addResourceHandler("/userImages/**")
-                .addResourceLocations("file:C:/users/THUNDEROBOT/ideaProjects/hospital_website/hospital_website/src/main/resources/static/images/userImages/")
+                .addResourceLocations("file:C:/Users/ursus69/IdeaProjects/hospital_website_backend/hospital_website/src/main/resources/static/images/userImages")
                 .setCachePeriod(0)
                 .setCacheControl(CacheControl.noStore().mustRevalidate());
     }
