@@ -27,15 +27,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Сервис, реализующий логику административных операций
+ * Доступен только для роли ADMIN
+ */
 @Service
 @AllArgsConstructor
 @Transactional
 public class AdminService {
+
+    /** Объект UserRepository для поиска пользователей */
     private final UserRepository userRepository;
+
+    /** Объект AppointmentRepository для поиска записей */
     private final AppointmentRepository appointmentRepository;
+
+    /** Объект DoctorRepository для поиска врачей */
     private final DoctorRepository doctorRepository;
+
+    /** Объект PasswordEncoder для шифрования паролей */
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Добавляет нового врача
+     *
+     * @param doctorRequestDTO данные нового врача
+     * @return DTO добавленного врача или ошибка
+     */
     public DoctorResponseDTO addNewDoctor(DoctorRequestDTO doctorRequestDTO) {
         DoctorParamsValidator.doctorParamValidate(doctorRequestDTO);
         Doctor doctor = DoctorMapper.doctorCreateDTOToDoctor(doctorRequestDTO);
@@ -43,12 +61,25 @@ public class AdminService {
         return DoctorMapper.doctorToDoctorResponseDTO(savedDoctor);
     }
 
+    /**
+     * Возвращает врача по id
+     *
+     * @param doctorId id врача
+     * @return DTO врача или id
+     */
     public DoctorResponseDTO getDoctorById(Long doctorId) {
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new EntityNotFoundException("Доктор не найден!"));
         return DoctorMapper.doctorToDoctorResponseDTO(doctor);
     }
 
+    /**
+     * Изменяет данные врача
+     *
+     * @param doctorId id врача для изменения
+     * @param doctorRequestDTO новые данные врача
+     * @return DTO изменённого врача или ошибка
+     */
     public DoctorResponseDTO editDoctor(Long doctorId, DoctorRequestDTO doctorRequestDTO) {
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new EntityNotFoundException("Доктор не найден!"));
@@ -70,13 +101,23 @@ public class AdminService {
         return DoctorMapper.doctorToDoctorResponseDTO(updatedDoctor);
     }
 
-    public void deleteDoctor(Long id) {
-        Doctor doctor = doctorRepository.findById(id)
+    /**
+     * Удаляет врача по id
+     *
+     * @param doctorId id врача для удаления
+     */
+    public void deleteDoctor(Long doctorId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new EntityNotFoundException("Доктор не найден!"));
-        appointmentRepository.deleteByDoctorId(id);
+        appointmentRepository.deleteByDoctorId(doctorId);
         doctorRepository.delete(doctor);
     }
 
+    /**
+     * Возвращает всех пользователей
+     *
+     * @return список DTO с данными всех пользователей
+     */
     public List<UserResponseDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
         if (users.isEmpty())
@@ -89,10 +130,17 @@ public class AdminService {
         return userResponseDTOS;
     }
 
-    public UserResponseDTO editUser(Long id, AdminUserEditDTO userEditDTO) {
-        User user = userRepository.findById(id)
+    /**
+     * Изменяет пользователя по id
+     *
+     * @param userId id пользователя
+     * @param userEditDTO новые данные пользователя
+     * @return DTO с обновлёнными данными пользователя или ошибка
+     */
+    public UserResponseDTO editUser(Long userId, AdminUserEditDTO userEditDTO) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
-        if (!Objects.equals(id, user.getId()))
+        if (!Objects.equals(userId, user.getId()))
             throw new EntityNotFoundException("Ошибка поиска пользователя...");
         if (!user.getUsername().equals(userEditDTO.getUsername())) {
             UserParamsValidator.usernameValidate(userEditDTO.getUsername());
@@ -113,14 +161,24 @@ public class AdminService {
         return UserMapper.userToUserResponseDto(updatedUser);
     }
 
-
-    public void deleteUser(Long id) {
-        User user = userRepository.findById(id)
+    /**
+     * Удаляет пользователя по id
+     *
+     * @param userId id пользователя
+     */
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
-        appointmentRepository.deleteByUserId(id);
+        appointmentRepository.deleteByUserId(userId);
         userRepository.delete(user);
     }
 
+    /**
+     * Возвращает пользователя по id
+     *
+     * @param userId id пользователя
+     * @return DTO пользователя или ошибка
+     */
     public AdminUserResponseDTO getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));

@@ -24,15 +24,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Сервис, реализующий логику операций с записями к врачу
+ */
 @Service
 @AllArgsConstructor
 public class AppointmentService {
 
+    /** Объект AppointmentRepository для поиска записей */
     private final AppointmentRepository appointmentRepository;
+
+    /** Объект UserRepository для поиска пользователей */
     private final UserRepository userRepository;
+
+    /** Объект DoctorRepository для поиска врачей */
     private final DoctorRepository doctorRepository;
+
+    /** Объект UtilsSecurity для проверки авторизации пользователя */
     private final UtilsSecurity utilsSecurity;
 
+    /**
+     * Добавляет новую записи
+     *
+     * @param request данные с запросом на новую запись
+     * @return DTO новой записи или ошибка
+     */
     public AppointmentResponseDTO addAppointment(AppointmentRequestDTO request) {
         User user = utilsSecurity.getCurrentUser();
         Doctor doctor = doctorRepository.findById(request.getDoctorId())
@@ -41,6 +57,13 @@ public class AppointmentService {
         return AppointmentMapper.appointmentToAppointmentResponseDTO(savedAppointment);
     }
 
+    /**
+     * Возвращает все занятые временные слоты на заданную дату для врача по указанному id
+     *
+     * @param doctorId id врача
+     * @param date дата записи
+     * @return список всех занятых слотов или ошибка
+     */
     public List<String> getBusySlots(Long doctorId, LocalDate date) {
         List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
 
@@ -76,6 +99,11 @@ public class AppointmentService {
         return busySlots;
     }
 
+    /**
+     * Возвращает все записи пользователя с заданным id
+     *
+     * @return список DTO всех записей или ошибка
+     */
     public List<AppointmentResponseDTO> getAllByUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -94,6 +122,11 @@ public class AppointmentService {
         return appointmentResponseDTOList;
     }
 
+    /**
+     * Удаляет запись по id
+     *
+     * @param id id записи для удаления
+     */
     public void deleteAppointment(Long id) {
         Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
         if (optionalAppointment.isEmpty())
@@ -102,6 +135,12 @@ public class AppointmentService {
         appointmentRepository.delete(appointment);
     }
 
+    /**
+     * Отменяет запись к врачу
+     *
+     * @param id id записи для отмены
+     * @return DTO с данными записи или ошибка
+     */
     public AppointmentResponseDTO cancelAppointment(Long id) {
         Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
         if (optionalAppointment.isEmpty())
@@ -111,6 +150,11 @@ public class AppointmentService {
         return AppointmentMapper.appointmentToAppointmentResponseDTO(appointmentRepository.save(appointment));
     }
 
+    /**
+     * Проверяет статус записи
+     *
+     * @param appointment запись
+     */
     public void checkAppointmentStatus(Appointment appointment) {
         if (appointment.getStatus() != AppointmentStatus.SCHEDULED)
             return;

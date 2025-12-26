@@ -7,21 +7,30 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
+/**
+ * DTO-ответ с данными пользователя
+ */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserResponseDTO implements Serializable {
 
+    /** Уникальный id пользователя */
     private Long id;
 
+    /** Имя пользователя */
     private String username;
 
+    /** Email пользователя */
     private String email;
 
+    /** Роль пользователя */
     private String role;
 
+    /** Аватар пользователя */
     private String avatar;
 
+    /** Количество посещений пользователя */
     private int visitsCount;
 }

@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Реализация UserDetailsService для Spring Security.
+ * Загружает пользователя по username и преобразует роль в GrantedAuthority.
+ */
 @Service
 @AllArgsConstructor
 public class UserDetailsServiceImp implements UserDetailsService {

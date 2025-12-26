@@ -6,6 +6,7 @@ import com.hospital.hospital_website.dto.request.UserLoginDTO;
 import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.exception.EntityAlreadyExistsException;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
+import com.hospital.hospital_website.exception.ValidateException;
 import com.hospital.hospital_website.utils.mapper.UserMapper;
 import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.UserRepository;
@@ -54,6 +55,12 @@ public class UserService {
 
     public UserResponseDTO login(UserLoginDTO userLoginDTO, HttpSession session) {
 
+        User user = userRepository.findByUsername(userLoginDTO.getUsername())
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
+
+        if (!user.getPassword().equals(userLoginDTO.getPassword()))
+            throw new ValidateException("Неверный пароль!");
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         userLoginDTO.getUsername(),
@@ -63,8 +70,6 @@ public class UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-        User user = userRepository.findByUsername(userLoginDTO.getUsername())
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
         user.setVisitsCount(user.getVisitsCount() + 1);
         User savedUser = userRepository.save(user);
         return UserMapper.userToUserResponseDto(savedUser);
@@ -128,6 +133,4 @@ public class UserService {
         userRepository.save(user);
         return UserMapper.userToUserResponseDto(user);
     }
-
-
 }

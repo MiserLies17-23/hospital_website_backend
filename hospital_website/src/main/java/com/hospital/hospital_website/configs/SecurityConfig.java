@@ -1,6 +1,5 @@
 package com.hospital.hospital_website.configs;
 
-
 import com.hospital.hospital_website.services.UserDetailsServiceImp;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;

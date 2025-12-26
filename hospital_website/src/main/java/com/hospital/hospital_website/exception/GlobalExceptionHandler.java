@@ -8,10 +8,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/**
+ * Глобальный обработчик исключений для веб-приложения
+ * Приводит исключения к виду ErrorResponse, который легко считывается фронтендом как json-объект
+ */
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
 
+    /**
+     * Обработчик исключений для ValidateException
+     *
+     * @param ex сообщение об ошибке
+     * @return ResponseEntity со статусом и телом ошибки
+     */
     @ExceptionHandler(ValidateException.class)
     public ResponseEntity<ErrorResponse> handleValidateException(ValidateException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
@@ -21,6 +31,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    /**
+     * Обработчик исключений для EntityNotFoundException
+     *
+     * @param ex сообщение об ошибке
+     * @return ResponseEntity со статусом и телом ошибки
+     */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
@@ -30,6 +46,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
+    /**
+     * Обработчик исключений для EntityAlreadyExistsException
+     *
+     * @param ex сообщение об ошибке
+     * @return ResponseEntity со статусом и телом ошибки
+     */
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityAlreadyExistsException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
