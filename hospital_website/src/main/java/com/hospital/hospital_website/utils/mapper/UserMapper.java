@@ -16,10 +16,9 @@ import java.nio.file.Paths;
 @Component
 public abstract class UserMapper {
 
-
     private static final UserRole DEFAULT_ROLE = UserRole.USER;
 
-    private static final String USER_IMAGE_PATH = "C:\\users\\THUNDEROBOT\\IdeaProjects\\hospital_website\\hospital_website\\src\\main\\resources\\static\\images\\userImages";
+    private static final String USER_IMAGE_PATH = "C:/users/THUNDEROBOT/IdeaProjects/hospital_website/hospital_website/src/main/resources/static/images/userImages";
 
     private static final String USER_IMAGE_URL = "http://localhost:8080/images/userImages/";
 
@@ -104,6 +103,7 @@ public abstract class UserMapper {
             e.getMessage();
         }
     }
+
     public static AdminUserResponseDTO userToAdminUserResponseDto(User user) {
         if (user == null)
             return null;
@@ -112,7 +112,8 @@ public abstract class UserMapper {
                 user.getUsername(),
                 user.getPassword(),
                 user.getEmail(),
-                user.getRole().toString()
+                user.getRole().toString(),
+                user.getAvatar()
         );
     }
 

@@ -91,6 +91,7 @@ public class UserService {
 
     public String uploadAvatar(MultipartFile file) {
         User user = utilsSecurity.getCurrentUser();
+        UserMapper.deleteAvatar(user.getAvatar());
         String avatarUrl = UserMapper.avatarProcessing(file, user.getUsername());
         user.setAvatar(avatarUrl);
         userRepository.save(user);

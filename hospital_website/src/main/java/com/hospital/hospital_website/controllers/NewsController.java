@@ -8,11 +8,19 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Rest-контроллер для получения данных о всех новостях
+ */
 @RestController
 @AllArgsConstructor
 public class NewsController {
     private NewsService newsService;
 
+    /**
+     * Получить данные обо всех новостях
+     *
+     * @return ResponseEntity с данными всех новостей
+     */
     @GetMapping("/news")
     public ResponseEntity<?> getAllNews() {
         List<NewsResponseDTO> allNews = newsService.getAllNews();

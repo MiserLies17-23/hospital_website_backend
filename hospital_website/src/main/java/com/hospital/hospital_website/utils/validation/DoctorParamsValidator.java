@@ -5,9 +5,9 @@ import com.hospital.hospital_website.exception.ValidateException;
 
 public abstract class DoctorParamsValidator {
 
-    private static final String NAME_REGEX = "^[a-zA-Z]\\w*$";
-    private static final String PHONE_REGEX = "^[0-9]{10}$";
-    private static final String SPECIALIZATION_REGEX = "[а-яА-Я]{1}[а-яА-ЯЕё]{3,}";
+    private static final String NAME_REGEX = "([А-ЯЁ][а-яё]+\\s){2}[А-ЯЁ][а-яё]";
+    private static final String PHONE_REGEX = "(\\+7\\s([(]\\d{4}[)])\\s\\d{3}-\\d{2}-\\d{2})";
+    private static final String SPECIALIZATION_REGEX = "[а-яА-Я][а-яА-ЯЕё]{3,}";
 
     public static void doctornameValidate(String doctorname) {
         if (!doctorname.matches(NAME_REGEX))
@@ -16,7 +16,7 @@ public abstract class DoctorParamsValidator {
 
     public static void doctorphoneValidate(String doctorphone) {
         if (!doctorphone.matches(PHONE_REGEX))
-            throw new ValidateException("Неправильный формат телефона! Пример: ");
+            throw new ValidateException("Неправильный формат телефона! Пример: +7 (999) 999-99-99");
     }
 
     public static void doctorSpecializationValidate(String specialization) {

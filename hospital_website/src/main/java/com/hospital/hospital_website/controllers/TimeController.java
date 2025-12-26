@@ -7,9 +7,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Rest-контроллер для получения серверного времени
+ */
 @RestController
 public class TimeController {
 
+    /**
+     * Получить серверное время
+     *
+     * @return ResponseEntity с отформатированным серверным временем
+     */
     @GetMapping("/time")
     public ResponseEntity<String> getTime() {
         LocalDateTime now = LocalDateTime.now();

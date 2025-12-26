@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -45,26 +44,28 @@ public class AdminService {
     }
 
     public DoctorResponseDTO getDoctorById(Long doctorId) {
-        Optional<Doctor> optionalDoctor = doctorRepository.findById(doctorId);
-        if (optionalDoctor.isEmpty())
-            throw new EntityNotFoundException("Доктор не найден!");
-        Doctor doctor = optionalDoctor.get();
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new EntityNotFoundException("Доктор не найден!"));
         return DoctorMapper.doctorToDoctorResponseDTO(doctor);
     }
 
     public DoctorResponseDTO editDoctor(Long doctorId, DoctorRequestDTO doctorRequestDTO) {
-        Optional<Doctor> optionalDoctor = doctorRepository.findById(doctorId);
-        if (optionalDoctor.isEmpty())
-            throw new EntityNotFoundException("Доктор не найден!");
-        Doctor doctor = optionalDoctor.get();
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new EntityNotFoundException("Доктор не найден!"));
         if (!Objects.equals(doctorId, doctor.getId()))
             throw new EntityNotFoundException("Ошибка поиска доктора...");
-        if(!doctor.getName().equals(doctorRequestDTO.getName()))
+        if(!doctor.getName().equals(doctorRequestDTO.getName())) {
+            DoctorParamsValidator.doctornameValidate(doctorRequestDTO.getName());
             doctor.setName(doctorRequestDTO.getName());
-        if(!doctor.getSpecialization().equals(doctorRequestDTO.getSpecialization()))
+        }
+        if(!doctor.getSpecialization().equals(doctorRequestDTO.getSpecialization())) {
+            DoctorParamsValidator.doctorSpecializationValidate(doctorRequestDTO.getSpecialization());
             doctor.setSpecialization(doctorRequestDTO.getSpecialization());
-        if(!doctor.getPhone().equals(doctorRequestDTO.getPhone()))
+        }
+        if(!doctor.getPhone().equals(doctorRequestDTO.getPhone())) {
+            DoctorParamsValidator.doctorphoneValidate(doctorRequestDTO.getPhone());
             doctor.setPhone(doctorRequestDTO.getPhone());
+        }
         Doctor updatedDoctor = doctorRepository.save(doctor);
         return DoctorMapper.doctorToDoctorResponseDTO(updatedDoctor);
     }
