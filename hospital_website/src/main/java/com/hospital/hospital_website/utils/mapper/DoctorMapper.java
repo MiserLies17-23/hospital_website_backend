@@ -9,9 +9,18 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Вспомогательный компонент для конвертации данных врача Doctor
+ */
 @Component
 public abstract class DoctorMapper {
 
+    /**
+     * Преобразует DTO-запрос DoctorRequestDTO в сущность Doctor
+     *
+     * @param doctorRequestDTO DTO-запрос с данными врача
+     * @return сущность Doctor
+     */
     public static Doctor doctorCreateDTOToDoctor(DoctorRequestDTO doctorRequestDTO) {
         Doctor doctor = new Doctor();
         doctor.setName(doctorRequestDTO.getName());
@@ -20,6 +29,12 @@ public abstract class DoctorMapper {
         return doctor;
     }
 
+    /**
+     * Преобразует сущность Doctor в DTO-ответ DoctorResponseDTO
+     *
+     * @param doctor сущность врач
+     * @return DTO-ответ с данными пользователя
+     */
     public static DoctorResponseDTO doctorToDoctorResponseDTO(Doctor doctor) {
         return new DoctorResponseDTO(
                 doctor.getId(),
@@ -29,14 +44,12 @@ public abstract class DoctorMapper {
         );
     }
 
-    public static DoctorResponseDTO selectDoctorBySpecialization(String specialization, List<Doctor> doctors) {
-        for (Doctor doctor : doctors) {
-            if (specialization.equals( doctor.getSpecialization()))
-                return doctorToDoctorResponseDTO(doctor);
-        }
-        throw new EntityNotFoundException("Доктора заданной специализации не найдены!");
-    }
-
+    /**
+     * Преобразует список врачей в список DTO
+     *
+     * @param doctors список врачей
+     * @return список с DTO врачей
+     */
     public static List<DoctorResponseDTO> getDTOdoctorsList (List<Doctor> doctors) {
         List<DoctorResponseDTO> doctorResponseDTOS = new ArrayList<>();
         for (Doctor doctor : doctors) {

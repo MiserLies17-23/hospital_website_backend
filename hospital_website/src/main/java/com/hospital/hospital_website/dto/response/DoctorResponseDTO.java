@@ -7,17 +7,24 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
+/**
+ * DTO-ответ данных врача
+ */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DoctorResponseDTO implements Serializable {
+public class DoctorResponseDTO {
 
+    /** Уникальный id врача */
     private Long id;
 
+    /** ФИО врача */
     private String name;
 
+    /** Специальность врача */
     private String specialization;
 
+    /** Телефон врача */
     private String phone;
 }

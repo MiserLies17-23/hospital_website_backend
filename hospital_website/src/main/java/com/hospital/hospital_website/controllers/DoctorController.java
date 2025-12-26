@@ -5,19 +5,26 @@ import com.hospital.hospital_website.services.DoctorService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Rest-контроллер для общедоступных данных о докторах
+ */
 @RestController
-@RequestMapping("/doctor")
 @AllArgsConstructor
 public class DoctorController {
 
+    /** Объект DoctorService для управления логикой работы с врачами */
     private final DoctorService doctorService;
 
-    @GetMapping("/")
+    /**
+     * Контроллер для получения данных обо всех докторах
+     *
+     * @return ResponseEntity с данными всех докторов
+     */
+    @GetMapping("/doctors")
     public ResponseEntity<?> getAllDoctors() {
         List<DoctorResponseDTO> allDoctors = doctorService.getAllDoctors();
         return ResponseEntity.ok(allDoctors);

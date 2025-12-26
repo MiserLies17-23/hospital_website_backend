@@ -2,11 +2,18 @@ package com.hospital.hospital_website.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
+/**
+ * Класс ошибок валидации
+ */
 @Getter
-@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class ValidateException extends AppException {
+
+    /**
+     * Конструктор с параметром
+     *
+     * @param message сообщение ошибки
+     */
     public ValidateException(String message) {
         super(message, HttpStatus.BAD_REQUEST);
     }

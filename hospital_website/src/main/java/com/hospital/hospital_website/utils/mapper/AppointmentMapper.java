@@ -12,9 +12,20 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Вспомогательный компонент для конвертации данных записи Appointment
+ */
 @Component
 public abstract class AppointmentMapper {
 
+    /**
+     * Преобразует запрос AppointmentRequestDTO в сущность Appointment
+     *
+     * @param appointmentRequestDTO запрос с данными записи
+     * @param user записанный пользователь
+     * @param doctor врач
+     * @return объект Appointment
+     */
     public static Appointment appointmentRequestToAppointment(AppointmentRequestDTO appointmentRequestDTO,
                                                               User user, Doctor doctor) {
         Appointment appointment = new Appointment();
@@ -28,6 +39,12 @@ public abstract class AppointmentMapper {
         return appointment;
     }
 
+    /**
+     * Преобразует сущность Appointment в DTO-ответ AppointmentResponseDTO
+     *
+     * @param appointment запись
+     * @return DTO с данными записи
+     */
     public static AppointmentResponseDTO appointmentToAppointmentResponseDTO(Appointment appointment) {
         return new AppointmentResponseDTO(
                 appointment.getId(),
@@ -40,6 +57,12 @@ public abstract class AppointmentMapper {
         );
     }
 
+    /**
+     * Преобразует статус записи из строки в enum
+     *
+     * @param status строковый статус
+     * @return объект AppointmentStatus
+     */
     public static AppointmentStatus parseStatus(String status) {
         if (status == null || status.isEmpty())
             return AppointmentStatus.SCHEDULED;

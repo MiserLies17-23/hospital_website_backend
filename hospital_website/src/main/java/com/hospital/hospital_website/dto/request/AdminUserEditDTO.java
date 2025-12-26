@@ -4,11 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * DTO-запрос для изменения данных пользователя
+ * DTO для изменения пользователя администратором
  */
 @Data
 @AllArgsConstructor
-public class UserEditDTO {
+public class AdminUserEditDTO {
 
     /** Уникальный id пользователя */
     private Long id;
@@ -16,9 +16,15 @@ public class UserEditDTO {
     /** Имя пользователя */
     private String username;
 
-    /** Пароль пользователя */
+    /** Хешированный пароль */
     private String password;
 
     /** Email пользователя */
     private String email;
+
+    /** Роль пользователя */
+    private String role;
+
+    /** Url аватара */
+    private String avatar;
 }

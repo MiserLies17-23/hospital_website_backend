@@ -9,12 +9,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Сервис, реализующий логику работы с врачами
+ */
 @Service
 @AllArgsConstructor
 public class DoctorService {
 
+    /** Объект DoctorRepository для поиска врачей */
     private final DoctorRepository doctorRepository;
 
+    /**
+     * Возвращает всех врачей
+     *
+     * @return список с DTO всех врачей
+     */
     public List<DoctorResponseDTO> getAllDoctors() {
         List <Doctor> doctors = doctorRepository.findAll();
         return DoctorMapper.getDTOdoctorsList(doctors);

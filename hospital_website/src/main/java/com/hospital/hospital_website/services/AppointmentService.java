@@ -2,7 +2,6 @@ package com.hospital.hospital_website.services;
 
 import com.hospital.hospital_website.dto.request.AppointmentRequestDTO;
 import com.hospital.hospital_website.dto.response.AppointmentResponseDTO;
-import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.models.enums.AppointmentStatus;
 import com.hospital.hospital_website.utils.mapper.AppointmentMapper;
@@ -12,8 +11,10 @@ import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.AppointmentRepository;
 import com.hospital.hospital_website.repository.DoctorRepository;
 import com.hospital.hospital_website.repository.UserRepository;
-import jakarta.servlet.http.HttpSession;
+import com.hospital.hospital_website.utils.security.UtilsSecurity;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,35 +24,48 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Сервис, реализующий логику операций с записями к врачу
+ */
 @Service
 @AllArgsConstructor
 public class AppointmentService {
 
+    /** Объект AppointmentRepository для поиска записей */
     private final AppointmentRepository appointmentRepository;
+
+    /** Объект UserRepository для поиска пользователей */
     private final UserRepository userRepository;
+
+    /** Объект DoctorRepository для поиска врачей */
     private final DoctorRepository doctorRepository;
 
-    public AppointmentResponseDTO addAppointment(AppointmentRequestDTO request, HttpSession session) {
-        UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
-        Optional<User> optionalUser = userRepository.findById(userDTO.getId());
-        if (optionalUser.isEmpty())
-            throw new EntityNotFoundException("Пользователь", userDTO.getId());
-        User user = optionalUser.get();
-        Optional<Doctor> optionalDoctor = doctorRepository.findById(request.getDoctorId());
-        if (optionalDoctor.isEmpty())
-            throw new EntityNotFoundException("Доктор", request.getDoctorId());
-        Doctor doctor = optionalDoctor.get();
+    /** Объект UtilsSecurity для проверки авторизации пользователя */
+    private final UtilsSecurity utilsSecurity;
 
+    /**
+     * Добавляет новую записи
+     *
+     * @param request данные с запросом на новую запись
+     * @return DTO новой записи или ошибка
+     */
+    public AppointmentResponseDTO addAppointment(AppointmentRequestDTO request) {
+        User user = utilsSecurity.getCurrentUser();
+        Doctor doctor = doctorRepository.findById(request.getDoctorId())
+                .orElseThrow(() -> new EntityNotFoundException("Доктор не найден!"));
         Appointment savedAppointment = appointmentRepository.save(AppointmentMapper.appointmentRequestToAppointment(request, user, doctor));
         return AppointmentMapper.appointmentToAppointmentResponseDTO(savedAppointment);
     }
 
+    /**
+     * Возвращает все занятые временные слоты на заданную дату для врача по указанному id
+     *
+     * @param doctorId id врача
+     * @param date дата записи
+     * @return список всех занятых слотов
+     */
     public List<String> getBusySlots(Long doctorId, LocalDate date) {
         List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
-
-        if (appointments == null || appointments.isEmpty())
-            throw new EntityNotFoundException("Записи не найдены!");
-
         List<String> busySlots = new ArrayList<>();
 
         for (Appointment appointment : appointments) {
@@ -81,12 +95,19 @@ public class AppointmentService {
         return busySlots;
     }
 
-    public List<AppointmentResponseDTO> getAllByUser(HttpSession session) {
-        UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
-        Optional<User> optionalUser = userRepository.findById(userDTO.getId());
-        if (optionalUser.isEmpty())
-            throw new EntityNotFoundException("Пользователь", userDTO.getId());
-        User user = optionalUser.get();
+    /**
+     * Возвращает все записи пользователя с заданным id
+     *
+     * @return список DTO всех записей или ошибка
+     */
+    public List<AppointmentResponseDTO> getAllByUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new EntityNotFoundException("Пользователь не аутентифицирован!");
+        }
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
         List<Appointment> appointments = appointmentRepository.findByUserId(user.getId());
         List<AppointmentResponseDTO> appointmentResponseDTOList = new ArrayList<>();
         for (Appointment appointment : appointments) {
@@ -97,6 +118,11 @@ public class AppointmentService {
         return appointmentResponseDTOList;
     }
 
+    /**
+     * Удаляет запись по id
+     *
+     * @param id id записи для удаления
+     */
     public void deleteAppointment(Long id) {
         Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
         if (optionalAppointment.isEmpty())
@@ -105,6 +131,12 @@ public class AppointmentService {
         appointmentRepository.delete(appointment);
     }
 
+    /**
+     * Отменяет запись к врачу
+     *
+     * @param id id записи для отмены
+     * @return DTO с данными записи или ошибка
+     */
     public AppointmentResponseDTO cancelAppointment(Long id) {
         Optional<Appointment> optionalAppointment = appointmentRepository.findById(id);
         if (optionalAppointment.isEmpty())
@@ -114,6 +146,11 @@ public class AppointmentService {
         return AppointmentMapper.appointmentToAppointmentResponseDTO(appointmentRepository.save(appointment));
     }
 
+    /**
+     * Проверяет статус записи
+     *
+     * @param appointment запись
+     */
     public void checkAppointmentStatus(Appointment appointment) {
         if (appointment.getStatus() != AppointmentStatus.SCHEDULED)
             return;

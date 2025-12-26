@@ -5,16 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
-
 /**
- * DTO-ответ с данными пользователя
+ * DTO-ответ пользовательских данных, доступных администратору
  */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponseDTO {
+public class AdminUserResponseDTO {
 
     /** Уникальный id пользователя */
     private Long id;
@@ -22,15 +20,15 @@ public class UserResponseDTO {
     /** Имя пользователя */
     private String username;
 
+    /** Пароль пользователя */
+    private String password;
+
     /** Email пользователя */
     private String email;
 
     /** Роль пользователя */
     private String role;
 
-    /** Аватар пользователя */
+    /** Url аватара пользователя */
     private String avatar;
-
-    /** Количество посещений пользователя */
-    private int visitsCount;
 }

@@ -9,24 +9,48 @@ import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.utils.mapper.UserMapper;
 import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.UserRepository;
-import com.hospital.hospital_website.utils.validation.Validator;
+import com.hospital.hospital_website.utils.security.UtilsSecurity;
+import com.hospital.hospital_website.utils.validation.UserParamsValidator;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
-import java.util.Optional;
 
+/**
+ * Сервис, реализующий логику пользовательских операций
+ */
 @Service
 @AllArgsConstructor
 public class UserService {
 
+    /** Объект UserRepository для поиска пользователей */
     private final UserRepository userRepository;
 
+    /** Объект AuthenticationManager для создания сессии */
+    private final AuthenticationManager authenticationManager;
+
+    /** Объект PasswordEncoder для кодирования паролей */
+    private final PasswordEncoder passwordEncoder;
+
+    /** Объект UtilsSecurity для проверки авторизации пользователя */
+    private final UtilsSecurity utilsSecurity;
+
+    /**
+     * Создание (регистрация) пользователя
+     *
+     * @param userCreateDTO данные пользователя для регистрации
+     * @return DTO с данными зарегистрированного пользователя или ошибка
+     */
     public UserResponseDTO signup(UserCreateDTO userCreateDTO) {
 
-        userParamsValidate(userCreateDTO);
+        UserParamsValidator.userParamsValidate(userCreateDTO);
 
         if (userRepository.findByUsername(userCreateDTO.getUsername()).isPresent())
             throw new EntityAlreadyExistsException("Пользователь с таким именем уже существует!");
@@ -35,118 +59,135 @@ public class UserService {
             throw new EntityAlreadyExistsException("Пользователь с таким email уже существует!");
 
         User user = UserMapper.userCrateDtoToUser(userCreateDTO);
+
+        String encodedPassword = passwordEncoder.encode(userCreateDTO.getPassword());
+        user.setPassword(encodedPassword);
+        user.setAvatar(UserMapper.avatarProcessing(null, user.getUsername()));
+
         User savedUser = userRepository.save(user);
         return UserMapper.userToUserResponseDto(savedUser);
     }
 
+    /**
+     * Вход в систему
+     *
+     * @param userLoginDTO пользовательские данные для входа
+     * @param session HTTP-сессия
+     * @return DTO зарегистрированного пользователя
+     */
     public UserResponseDTO login(UserLoginDTO userLoginDTO, HttpSession session) {
-        Optional<User> userOptional = userRepository.findByUsername(userLoginDTO.getUsername());
-        if(userOptional.isEmpty())
-            throw new EntityNotFoundException("Пользователь не найден!");
-        User user = userOptional.get();
-        if (!user.getPassword().equals(userLoginDTO.getPassword()))
-            throw new EntityNotFoundException("Неверный пароль!"); // заменить на ValidationException
+
+        User user = userRepository.findByUsername(userLoginDTO.getUsername())
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        userLoginDTO.getUsername(),
+                        userLoginDTO.getPassword()
+                )
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+
         user.setVisitsCount(user.getVisitsCount() + 1);
-        UserResponseDTO userResponseDTO = UserMapper.userToUserResponseDto(user);
-        session.setAttribute("user", userResponseDTO);
         User savedUser = userRepository.save(user);
         return UserMapper.userToUserResponseDto(savedUser);
     }
 
-    public UserResponseDTO checkLogin(HttpSession session) {
-        return (UserResponseDTO) session.getAttribute("user");
+    /**
+     * Проверка пользователя
+     *
+     * @return DTO с данными пользователя, если он вошёл в систему, или ошибка
+     */
+    public UserResponseDTO checkLogin() {
+        User user = utilsSecurity.getCurrentUser();
+        return UserMapper.userToUserResponseDto(user);
     }
 
+    /**
+     * Выход из системы
+     *
+     * @param session HTTP-сессия
+     */
     public void logout(HttpSession session) {
-        UserResponseDTO userResponseDTO = (UserResponseDTO) session.getAttribute("user");
-        if (userResponseDTO == null)
-            throw new EntityNotFoundException("Пользователь не найден!");
-        session.removeAttribute("user");
-        session.invalidate();
+        SecurityContextHolder.clearContext();
+        if (session != null)
+            session.invalidate();
     }
 
+    /**
+     * Возвращает данные пользователя для личного кабинета
+     *
+     * @param session HTTP-сессия
+     * @return DTO с данными пользователя или ошибка
+     */
     public UserResponseDTO dashboard(HttpSession session) {
-        UserResponseDTO userResponseDTO = (UserResponseDTO) session.getAttribute("user");
-        if (userResponseDTO == null)
-            throw new EntityNotFoundException("Пользователь не найден!");
-        Optional<User> userOptional = userRepository.findByUsername(userResponseDTO.getUsername());
-        if (userOptional.isEmpty())
-            throw new EntityNotFoundException("Ошибка поиска пользователя...");
-
-        User user = userOptional.get();
-        UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
-
-        // Обновляем сессию
-        session.setAttribute("user", updatedUser);
-        userRepository.save(user);
-        return updatedUser;
+        if (session.getAttribute("SPRING_SECURITY_CONTEXT") != null) {
+            User user = utilsSecurity.getCurrentUser();
+            return UserMapper.userToUserResponseDto(user);
+        }
+        throw new EntityNotFoundException("Пользователь не найден!");
     }
 
-    public String uploadAvatar(HttpSession session, MultipartFile file) {
-        UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
-        if (userDTO == null)
-            throw new EntityNotFoundException("Пользователь не найден!");
-
-        String username = userDTO.getUsername();
-        Optional<User> userOptional = userRepository.findByUsername(username);
-
-        if (userOptional.isEmpty())
-            throw new EntityNotFoundException("Ошибка загрузки пользовательских данных");
-
-        User user = userOptional.get();
-        String avatarUrl = UserMapper.avatarProcessing(file, username);
+    /**
+     * Загружает пользовательский аватар
+     *
+     * @param file файл-изображение для загрузки
+     * @return url аватара или ошибка
+     */
+    public String uploadAvatar(MultipartFile file) {
+        User user = utilsSecurity.getCurrentUser();
+        UserMapper.deleteAvatar(user.getAvatar());
+        String avatarUrl = UserMapper.avatarProcessing(file, user.getUsername());
         user.setAvatar(avatarUrl);
         userRepository.save(user);
-
-        UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
-        session.setAttribute("user", updatedUser);
 
         return avatarUrl;
     }
 
-    public String deleteAvatar(HttpSession session) {
-        UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
-        if (userDTO == null)
-            throw new EntityNotFoundException("Пользователь не найден!");
-
-        String username = userDTO.getUsername();
-        Optional<User> userOptional = userRepository.findByUsername(username);
-
-        if (userOptional.isEmpty())
-            throw new EntityNotFoundException("Ошибка загрузки пользовательских данных");
-
-        User user = userOptional.get();
+    /**
+     * Удаляет аватар
+     *
+     * @return url дефолтного аватара или ошибка
+     */
+    public String deleteAvatar() {
+        User user = utilsSecurity.getCurrentUser();
         UserMapper.deleteAvatar(user.getAvatar()); // удаляем старый аватар
-        String defaultAvatarUrl = UserMapper.avatarProcessing(null, username); // загружаем дефолтный
+        String defaultAvatarUrl = UserMapper.avatarProcessing(null, user.getUsername()); // загружаем дефолтный
         user.setAvatar(defaultAvatarUrl); // сохраняем дефолтный аватар для пользователя
         userRepository.save(user); // сохраняем изменения пользователя в репозиторий
-
-        UserResponseDTO updatedUser = UserMapper.userToUserResponseDto(user);
-        session.setAttribute("user", updatedUser); // Обновляем сессию
 
         return defaultAvatarUrl;
     }
 
-    public UserResponseDTO edit(UserEditDTO userEditDTO, HttpSession session) {
-        UserResponseDTO userDTO = (UserResponseDTO) session.getAttribute("user");
-        Optional<User> optionalUser = userRepository.findById(userDTO.getId());
-        if (optionalUser.isEmpty())
-            throw new EntityNotFoundException("Пользователь не найден!");
-        User user = optionalUser.get();
+    /**
+     * Изменяет данные пользователя
+     *
+     * @param userEditDTO данные пользователя для изменения
+     * @return DTO с обновлёнными данными пользователя или ошибка
+     */
+    public UserResponseDTO edit(UserEditDTO userEditDTO) {
+        User user = utilsSecurity.getCurrentUser();
         if (!(Objects.equals(user.getId(), userEditDTO.getId())))
             throw new EntityNotFoundException("Ошибка поиска пользователя");
-        if(!user.getUsername().equals(userEditDTO.getUsername()))
+
+        String oldestName = user.getUsername();
+        if(!user.getUsername().equals(userEditDTO.getUsername())) {
+            UserParamsValidator.usernameValidate(userEditDTO.getUsername());
             user.setUsername(userEditDTO.getUsername());
-        if(!user.getEmail().equals(userEditDTO.getEmail()))
+        }
+        if (!Objects.equals(user.getPassword(), userEditDTO.getPassword())) {
+            UserParamsValidator.passwordValidate(userEditDTO.getPassword());
+            user.setPassword(passwordEncoder.encode(userEditDTO.getPassword()));
+        }
+        if(!user.getEmail().equals(userEditDTO.getEmail())) {
+            UserParamsValidator.emailValidate(userEditDTO.getEmail());
             user.setEmail(userEditDTO.getEmail());
+        }
+        if (!Objects.equals(user.getUsername(), oldestName))
+            utilsSecurity.updateSecurityContext(user);
 
-        User savedUser = userRepository.save(user);
-        return UserMapper.userToUserResponseDto(savedUser);
-    }
-
-    public void userParamsValidate(UserCreateDTO userCreateDTO) {
-        Validator.usernameValidate(userCreateDTO.getUsername());
-        Validator.emailValidate(userCreateDTO.getEmail());
-        Validator.passwordValidate(userCreateDTO.getPassword());
+        userRepository.save(user);
+        return UserMapper.userToUserResponseDto(user);
     }
 }
