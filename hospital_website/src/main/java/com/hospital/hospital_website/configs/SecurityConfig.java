@@ -1,5 +1,6 @@
 package com.hospital.hospital_website.configs;
 
+
 import com.hospital.hospital_website.services.UserDetailsServiceImp;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -53,6 +54,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/user/login", "/user/signup", "/news", "/time",
                                 "/hospitalImages/**", "/userImages/**", "/doctors").permitAll()
+                        .requestMatchers("/user/avatar", "/user/edit").authenticated() // Добавьте это
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/moderator/**").hasRole("MODERATOR")
                         .anyRequest().authenticated()
@@ -138,12 +140,12 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/hospitalImages/**")
-                .addResourceLocations("file:C:/users/THUNDEROBOT/ideaProjects/hospital_website/hospital_website/src/main/resources/static/images/hospitalImages/")
+                .addResourceLocations("C:/users/THUNDEROBOT/IdeaProjects/hospital_website/hospital_website/src/main/resources/static/images/hospitalImage")
                 .setCachePeriod(0)
                 .setCacheControl(CacheControl.noStore().mustRevalidate());
 
         registry.addResourceHandler("/userImages/**")
-                .addResourceLocations("file:C:/users/THUNDEROBOT/ideaProjects/hospital_website/hospital_website/src/main/resources/static/images/userImages/")
+                .addResourceLocations("C:/users/THUNDEROBOT/IdeaProjects/hospital_website/hospital_website/src/main/resources/static/images/userImages")
                 .setCachePeriod(0)
                 .setCacheControl(CacheControl.noStore().mustRevalidate());
     }

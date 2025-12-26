@@ -62,14 +62,10 @@ public class AppointmentService {
      *
      * @param doctorId id врача
      * @param date дата записи
-     * @return список всех занятых слотов или ошибка
+     * @return список всех занятых слотов
      */
     public List<String> getBusySlots(Long doctorId, LocalDate date) {
         List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
-
-        if (appointments == null || appointments.isEmpty())
-            throw new EntityNotFoundException("Записи не найдены!");
-
         List<String> busySlots = new ArrayList<>();
 
         for (Appointment appointment : appointments) {

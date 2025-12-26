@@ -4,6 +4,7 @@ import com.hospital.hospital_website.exception.EntityNotFoundException;
 import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -24,9 +25,23 @@ public class UtilsSecurity {
         return authentication.getName();
     }
 
+
     public User getCurrentUser() {
         String username = getCurrentUsername();
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("Ошибка поиска пользователя..."));
+    }
+
+    public void updateSecurityContext(User user) {
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+
+        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
+                user.getUsername(),
+                currentAuth.getCredentials(),
+                currentAuth.getAuthorities()
+        );
+        newAuth.setDetails(currentAuth.getDetails());
+
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 }

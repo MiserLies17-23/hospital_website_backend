@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponseDTO implements Serializable {
+public class UserResponseDTO {
 
     /** Уникальный id пользователя */
     private Long id;

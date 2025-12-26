@@ -24,4 +24,7 @@ public class AdminUserEditDTO {
 
     /** Роль пользователя */
     private String role;
+
+    /** Url аватара */
+    private String avatar;
 }

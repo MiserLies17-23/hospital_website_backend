@@ -154,6 +154,10 @@ public class AdminService {
             UserParamsValidator.emailValidate(userEditDTO.getEmail());
             user.setEmail(userEditDTO.getEmail());
         }
+        if (!user.getPassword().equals(userEditDTO.getPassword())) {
+            UserParamsValidator.passwordValidate(userEditDTO.getPassword());
+            user.setPassword(passwordEncoder.encode(userEditDTO.getPassword()));
+        }
         if (!EnumUtils.isValidEnum(UserRole.class, userEditDTO.getRole()))
             throw new ValidateException("Такой роли не существует!");
         user.setRole(UserRole.valueOf(userEditDTO.getRole()));

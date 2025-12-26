@@ -3,13 +3,18 @@ package com.hospital.hospital_website.controllers;
 import com.hospital.hospital_website.dto.request.UserCreateDTO;
 import com.hospital.hospital_website.dto.request.UserEditDTO;
 import com.hospital.hospital_website.dto.request.UserLoginDTO;
+import com.hospital.hospital_website.dto.response.ErrorResponse;
 import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.services.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Rest-контроллер для пользователя
@@ -102,8 +107,18 @@ public class UserController {
      */
     @PostMapping("/avatar")
     public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file) {
-        String avatarUrl = userService.uploadAvatar(file);
-        return ResponseEntity.ok(avatarUrl);
+        try {
+            String avatarUrl = userService.uploadAvatar(file);
+            Map<String, String> response = new HashMap<>();
+            response.put("avatarUrl", avatarUrl);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ErrorResponse errorResponse = new ErrorResponse(
+                    "error",
+                    e.getMessage()
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     /**
@@ -117,3 +132,4 @@ public class UserController {
         return ResponseEntity.ok(defaultAvatarUrl);
     }
 }
+

@@ -6,7 +6,6 @@ import com.hospital.hospital_website.dto.request.UserLoginDTO;
 import com.hospital.hospital_website.dto.response.UserResponseDTO;
 import com.hospital.hospital_website.exception.EntityAlreadyExistsException;
 import com.hospital.hospital_website.exception.EntityNotFoundException;
-import com.hospital.hospital_website.exception.ValidateException;
 import com.hospital.hospital_website.utils.mapper.UserMapper;
 import com.hospital.hospital_website.models.User;
 import com.hospital.hospital_website.repository.UserRepository;
@@ -24,15 +23,31 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
 
+/**
+ * Сервис, реализующий логику пользовательских операций
+ */
 @Service
 @AllArgsConstructor
 public class UserService {
 
+    /** Объект UserRepository для поиска пользователей */
     private final UserRepository userRepository;
+
+    /** Объект AuthenticationManager для создания сессии */
     private final AuthenticationManager authenticationManager;
+
+    /** Объект PasswordEncoder для кодирования паролей */
     private final PasswordEncoder passwordEncoder;
+
+    /** Объект UtilsSecurity для проверки авторизации пользователя */
     private final UtilsSecurity utilsSecurity;
 
+    /**
+     * Создание (регистрация) пользователя
+     *
+     * @param userCreateDTO данные пользователя для регистрации
+     * @return DTO с данными зарегистрированного пользователя или ошибка
+     */
     public UserResponseDTO signup(UserCreateDTO userCreateDTO) {
 
         UserParamsValidator.userParamsValidate(userCreateDTO);
@@ -53,13 +68,17 @@ public class UserService {
         return UserMapper.userToUserResponseDto(savedUser);
     }
 
+    /**
+     * Вход в систему
+     *
+     * @param userLoginDTO пользовательские данные для входа
+     * @param session HTTP-сессия
+     * @return DTO зарегистрированного пользователя
+     */
     public UserResponseDTO login(UserLoginDTO userLoginDTO, HttpSession session) {
 
         User user = userRepository.findByUsername(userLoginDTO.getUsername())
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден!"));
-
-        if (!user.getPassword().equals(userLoginDTO.getPassword()))
-            throw new ValidateException("Неверный пароль!");
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -75,17 +94,33 @@ public class UserService {
         return UserMapper.userToUserResponseDto(savedUser);
     }
 
+    /**
+     * Проверка пользователя
+     *
+     * @return DTO с данными пользователя, если он вошёл в систему, или ошибка
+     */
     public UserResponseDTO checkLogin() {
         User user = utilsSecurity.getCurrentUser();
         return UserMapper.userToUserResponseDto(user);
     }
 
+    /**
+     * Выход из системы
+     *
+     * @param session HTTP-сессия
+     */
     public void logout(HttpSession session) {
         SecurityContextHolder.clearContext();
         if (session != null)
             session.invalidate();
     }
 
+    /**
+     * Возвращает данные пользователя для личного кабинета
+     *
+     * @param session HTTP-сессия
+     * @return DTO с данными пользователя или ошибка
+     */
     public UserResponseDTO dashboard(HttpSession session) {
         if (session.getAttribute("SPRING_SECURITY_CONTEXT") != null) {
             User user = utilsSecurity.getCurrentUser();
@@ -94,6 +129,12 @@ public class UserService {
         throw new EntityNotFoundException("Пользователь не найден!");
     }
 
+    /**
+     * Загружает пользовательский аватар
+     *
+     * @param file файл-изображение для загрузки
+     * @return url аватара или ошибка
+     */
     public String uploadAvatar(MultipartFile file) {
         User user = utilsSecurity.getCurrentUser();
         UserMapper.deleteAvatar(user.getAvatar());
@@ -104,6 +145,11 @@ public class UserService {
         return avatarUrl;
     }
 
+    /**
+     * Удаляет аватар
+     *
+     * @return url дефолтного аватара или ошибка
+     */
     public String deleteAvatar() {
         User user = utilsSecurity.getCurrentUser();
         UserMapper.deleteAvatar(user.getAvatar()); // удаляем старый аватар
@@ -114,10 +160,18 @@ public class UserService {
         return defaultAvatarUrl;
     }
 
+    /**
+     * Изменяет данные пользователя
+     *
+     * @param userEditDTO данные пользователя для изменения
+     * @return DTO с обновлёнными данными пользователя или ошибка
+     */
     public UserResponseDTO edit(UserEditDTO userEditDTO) {
         User user = utilsSecurity.getCurrentUser();
         if (!(Objects.equals(user.getId(), userEditDTO.getId())))
             throw new EntityNotFoundException("Ошибка поиска пользователя");
+
+        String oldestName = user.getUsername();
         if(!user.getUsername().equals(userEditDTO.getUsername())) {
             UserParamsValidator.usernameValidate(userEditDTO.getUsername());
             user.setUsername(userEditDTO.getUsername());
@@ -130,6 +184,9 @@ public class UserService {
             UserParamsValidator.emailValidate(userEditDTO.getEmail());
             user.setEmail(userEditDTO.getEmail());
         }
+        if (!Objects.equals(user.getUsername(), oldestName))
+            utilsSecurity.updateSecurityContext(user);
+
         userRepository.save(user);
         return UserMapper.userToUserResponseDto(user);
     }

@@ -10,10 +10,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Вспомогательный компонент для конвертации данных новостей News
+ */
 @Component
 public abstract class NewsMapper {
 
-
+    /**
+     * Преобразует DTO-запрос NewsRequestDTO в сущность News
+     *
+     * @param newsRequestDTO DTO-запрос с данными новости
+     * @param user пользователь автор новости
+     * @return сущность News
+     */
     public static News newsRequestDTOtoNews(NewsRequestDTO newsRequestDTO, User user) {
         News news = new News();
         news.setUser(user);
@@ -23,6 +32,12 @@ public abstract class NewsMapper {
         return news;
     }
 
+    /**
+     * Преобразует сущность News в DTO-ответ NewsResponseDTO
+     *
+     * @param news сущность новости
+     * @return DTO-ответ с данными новости
+     */
     public static NewsResponseDTO newsToNewsResponseDTO(News news){
         if (news == null)
             return null;
@@ -35,6 +50,12 @@ public abstract class NewsMapper {
         );
     }
 
+    /**
+     * Преобразует список новостей в список DTO
+     *
+     * @param newsList список новостей
+     * @return список DTO с данными всех новостей
+     */
     public static List<NewsResponseDTO> getDTOnewsList(List<News> newsList){
         List<NewsResponseDTO> newsDTOList = new ArrayList<>();
         for (News news : newsList) {

@@ -5,12 +5,12 @@ import com.hospital.hospital_website.exception.ValidateException;
 
 public abstract class DoctorParamsValidator {
 
-    private static final String NAME_REGEX = "([А-ЯЁ][а-яё]+\\s){2}[А-ЯЁ][а-яё]";
-    private static final String PHONE_REGEX = "(\\+7\\s([(]\\d{4}[)])\\s\\d{3}-\\d{2}-\\d{2})";
+    private static final String NAME_REGEX = "^[А-ЯЁ][а-яё]+(-[А-ЯЁ][а-яё]+)?\\s[А-ЯЁ][а-яё]+\\s[А-ЯЁ][а-яё]+(-[А-ЯЁ][а-яё]+)?$";
+    private static final String PHONE_REGEX = "[+]7\\w{10}";
     private static final String SPECIALIZATION_REGEX = "[а-яА-Я][а-яА-ЯЕё]{3,}";
 
     public static void doctornameValidate(String doctorname) {
-        if (!doctorname.matches(NAME_REGEX))
+        if (!doctorname.matches((NAME_REGEX)))
             throw new ValidateException("Введите ФИО врача!");
     }
 
